@@ -2,39 +2,32 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"soullocke-backend/config"
 	"soullocke-backend/db"
 )
 
 func main() {
-	mainCtx, _ := context.WithCancel(context.Background())
+	mainCtx := context.Background()
 
 	appConfig, err := config.LoadConfig("config.yml")
 	if err != nil {
-		slog.Error("Failed to load config", err)
+		slog.Error("Failed to load config", "error", err)
+		return
 	}
 
 	slog.Info("successfully loaded config")
-
-	dsn := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
-		appConfig.Database.User,
-		appConfig.Database.Password,
-		appConfig.Database.Host,
-		appConfig.Database.Port,
-		appConfig.Database.Database,
-	)
-	database, err := db.NewDatabase(mainCtx, dsn)
+	database, err := db.NewDatabase(mainCtx, appConfig.Database.DSN())
 	if err != nil {
-		slog.Error("Failed to boot up database", err)
+		slog.Error("Failed to boot up database", "error", err)
 		return
 	}
+	defer database.Close()
 	slog.Info("successfully connected to postgres")
 
 	err = database.Migrate(mainCtx)
 	if err != nil {
-		slog.Error("Failed to migrate database", err)
+		slog.Error("Failed to migrate database", "error", err)
 		return
 	}
 	slog.Info("successfully migrated database")

@@ -9,15 +9,25 @@ import (
 )
 
 type Config struct {
-	Database DB `koanf:"database"`
+	Database Database `koanf:"database"`
 }
 
-type DB struct {
+type Database struct {
 	Host     string `koanf:"host"`
 	Port     uint16 `koanf:"port"`
 	User     string `koanf:"user"`
 	Password string `koanf:"password"`
 	Database string `koanf:"db"`
+}
+
+func (dbConfig *Database) DSN() string {
+	return fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
+		dbConfig.User,
+		dbConfig.Password,
+		dbConfig.Host,
+		dbConfig.Port,
+		dbConfig.Database,
+	)
 }
 
 func LoadConfig(path string) (*Config, error) {
