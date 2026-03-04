@@ -2,15 +2,20 @@ package db
 
 import (
 	"context"
+	"embed"
 	"errors"
 	"fmt"
 	"log/slog"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/golang-migrate/migrate/v4/source/iofs"
+	_ "github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+//go:embed migrations/*.sql
+var migrations embed.FS
 
 type Database struct {
 	dsn  string
@@ -45,7 +50,8 @@ func (db *Database) Ping(ctx context.Context) error {
 }
 
 func (db *Database) Migrate(ctx context.Context) error {
-	m, err := migrate.New("file://db/migrations", db.dsn)
+	source, err := iofs.New(migrations, "migrations")
+	m, err := migrate.NewWithSourceInstance("iofs", source, db.dsn)
 
 	if err != nil {
 		return fmt.Errorf("db: failed to connect to migrations: %w", err)
