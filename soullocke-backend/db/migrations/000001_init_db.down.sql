@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS save_files;
+DROP TABLE IF EXISTS users;

@@ -1,0 +1,10 @@
+CREATE TABLE save_files
+(
+    id SERIAL PRIMARY KEY
+);
+
+CREATE TABLE users
+(
+    id   SERIAL PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL
+);
