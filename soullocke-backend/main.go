@@ -8,12 +8,21 @@ import (
 )
 
 func main() {
+	mainCtx, _ := context.WithCancel(context.Background())
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
 		"jailer", "sylv4n45", "localhost", 5445, "soullocker",
 	)
-	_, err := db2.NewDatabase(context.Background(), dsn)
+	db, err := db2.NewDatabase(mainCtx, dsn)
 	if err != nil {
-		panic(err)
+		slog.Error("Failed to boot up database", err)
+		return
 	}
 	slog.Info("successfully connected to postgres")
+
+	err = db.Migrate(mainCtx)
+	if err != nil {
+		slog.Error("Failed to migrate database", err)
+		return
+	}
+	slog.Info("successfully migrated database")
 }
