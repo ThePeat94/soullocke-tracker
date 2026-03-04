@@ -19,17 +19,17 @@ type Database struct {
 
 func NewDatabase(ctx context.Context, dsn string) (*Database, error) {
 	pool, err := pgxpool.New(ctx, dsn)
-
 	if err != nil {
 		return nil, fmt.Errorf("db: failed to connect to database: %w", err)
 	}
 
-	err = pool.Ping(ctx)
+	db := &Database{dsn: dsn, pool: pool}
+	err = db.Ping(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("db: failed to ping database: %w", err)
 	}
 
-	return &Database{dsn: dsn, pool: pool}, nil
+	return db, nil
 }
 
 func (db *Database) Pool() *pgxpool.Pool {
