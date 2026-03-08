@@ -1,10 +1,15 @@
-CREATE TABLE save_files
+CREATE TABLE game_editions
 (
-    id SERIAL PRIMARY KEY
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    image_src TEXT,
+    deleted_at TIMESTAMPTZ NULL
 );
 
-CREATE TABLE users
+CREATE TABLE lobbies
 (
-    id   SERIAL PRIMARY KEY,
-    name TEXT UNIQUE NOT NULL
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL,
+    password TEXT NOT NULL,
+    game_edition_id TEXT REFERENCES game_editions(id)
 );
