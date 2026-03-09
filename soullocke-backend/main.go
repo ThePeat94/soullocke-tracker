@@ -5,6 +5,8 @@ import (
 	"log/slog"
 	"soullocke-backend/config"
 	"soullocke-backend/db"
+	"soullocke-backend/domain/lobby"
+	"soullocke-backend/http"
 )
 
 func main() {
@@ -31,4 +33,10 @@ func main() {
 		return
 	}
 	slog.Info("successfully migrated database")
+
+	lr := lobby.NewRepository(*database)
+	server := http.NewServer(1337, lr)
+	server.Start()
+
+	select {}
 }
