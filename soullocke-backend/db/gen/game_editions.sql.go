@@ -3,7 +3,7 @@
 //   sqlc v1.30.0
 // source: game_editions.sql
 
-package db
+package dbgen
 
 import (
 	"context"

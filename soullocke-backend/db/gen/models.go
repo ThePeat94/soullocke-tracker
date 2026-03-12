@@ -2,7 +2,7 @@
 // versions:
 //   sqlc v1.30.0
 
-package db
+package dbgen
 
 import (
 	"github.com/google/uuid"

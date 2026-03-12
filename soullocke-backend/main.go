@@ -27,7 +27,7 @@ func main() {
 	defer database.Close()
 	slog.Info("successfully connected to postgres")
 
-	err = database.Migrate(mainCtx)
+	err = database.Migrate()
 	if err != nil {
 		slog.Error("Failed to migrate database", "error", err)
 		return

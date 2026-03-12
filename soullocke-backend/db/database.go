@@ -49,7 +49,7 @@ func (db *Database) Ping(ctx context.Context) error {
 	return db.pool.Ping(ctx)
 }
 
-func (db *Database) Migrate(ctx context.Context) error {
+func (db *Database) Migrate() error {
 	source, err := iofs.New(migrations, "migrations")
 	m, err := migrate.NewWithSourceInstance("iofs", source, db.dsn)
 

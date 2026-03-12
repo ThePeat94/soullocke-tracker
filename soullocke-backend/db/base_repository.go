@@ -3,30 +3,30 @@ package db
 import (
 	"context"
 	"fmt"
-	queries "soullocke-backend/db/gen"
+	"soullocke-backend/db/gen"
 
 	"github.com/jackc/pgx/v5"
 )
 
-type CommonRepository struct {
+type BaseRepository struct {
 	db Database
 }
 
-func NewCommonRepository(db Database) *CommonRepository {
-	return &CommonRepository{
+func NewBaseRepository(db Database) *BaseRepository {
+	return &BaseRepository{
 		db: db,
 	}
 }
 
-func (r *CommonRepository) QueriesFromContext(ctx context.Context) queries.Queries {
+func (r *BaseRepository) QueriesFromContext(ctx context.Context) dbgen.Queries {
 	if tx, ok := ctx.Value("tx").(pgx.Tx); ok {
-		return *queries.New(tx)
+		return *dbgen.New(tx)
 	}
 
-	return *queries.New(r.db.pool)
+	return *dbgen.New(r.db.pool)
 }
 
-func (r *CommonRepository) Tx(ctx context.Context, fn func() error) error {
+func (r *BaseRepository) Tx(ctx context.Context, fn func() error) error {
 	tx, err := r.db.pool.Begin(ctx)
 	if err != nil {
 		return fmt.Errorf("db: failed to start transaction: %w", err)

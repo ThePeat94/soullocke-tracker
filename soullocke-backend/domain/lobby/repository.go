@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	db2 "soullocke-backend/db"
-	db "soullocke-backend/db/gen"
+	"soullocke-backend/db"
+	"soullocke-backend/db/gen"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -13,12 +13,12 @@ import (
 )
 
 type Repository struct {
-	db2.CommonRepository
+	db.BaseRepository
 }
 
-func NewRepository(db db2.Database) *Repository {
+func NewRepository(database db.Database) *Repository {
 	return &Repository{
-		CommonRepository: *db2.NewCommonRepository(db),
+		BaseRepository: *db.NewBaseRepository(database),
 	}
 }
 
@@ -98,7 +98,7 @@ func (r *Repository) UpdateLobby(ctx context.Context, id string, name, password 
 	return domainLobby, nil
 }
 
-func toDomainLobby(l db.Lobby) *Lobby {
+func toDomainLobby(l dbgen.Lobby) *Lobby {
 	return &Lobby{
 		ID:            l.ID.String(),
 		Name:          l.Name,
@@ -107,21 +107,21 @@ func toDomainLobby(l db.Lobby) *Lobby {
 	}
 }
 
-func toCreateLobbyArgs(name string, password string, gameEditionID string) *db.CreateLobbyParams {
-	return &db.CreateLobbyParams{
+func toCreateLobbyArgs(name string, password string, gameEditionID string) *dbgen.CreateLobbyParams {
+	return &dbgen.CreateLobbyParams{
 		Name:          name,
 		Password:      password,
 		GameEditionID: pgtype.Text{String: gameEditionID},
 	}
 }
 
-func toUpdateLoggyArgs(id string, name string, password string) (*db.UpdateLobbyParams, error) {
+func toUpdateLoggyArgs(id string, name string, password string) (*dbgen.UpdateLobbyParams, error) {
 	idUuid, err := uuid.Parse(id)
 	if err != nil {
 		return nil, fmt.Errorf("lobby: failed to parse uuid: %w", err)
 	}
 
-	return &db.UpdateLobbyParams{
+	return &dbgen.UpdateLobbyParams{
 		ID:       idUuid,
 		Name:     name,
 		Password: password,
