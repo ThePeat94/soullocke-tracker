@@ -2,7 +2,9 @@ package http
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"soullocke-backend/domain/lobby"
@@ -44,6 +46,12 @@ type LobbyCreationResponse struct {
 	LobbyId string `json:"lobbyId"`
 }
 
+type GetLobbyResponse struct {
+	ID            string `json:"id"`
+	Name          string `json:"name"`
+	GameEditionId string `json:"gameEditionId"`
+}
+
 func (s *Server) registerLobbyRoutes() error {
 
 	s.mux.HandleFunc("POST /lobby", func(writer http.ResponseWriter, request *http.Request) {
@@ -63,11 +71,43 @@ func (s *Server) registerLobbyRoutes() error {
 		encoded, err := json.Marshal(creationResponse)
 		if err != nil {
 			writer.WriteHeader(http.StatusInternalServerError)
+			writer.Write([]byte{})
 			return
 		}
 		writer.Header().Set("Content-Type", "application/json")
 		writer.Header().Set("Content-Length", strconv.Itoa(len(encoded)))
 		writer.WriteHeader(http.StatusCreated)
+		writer.Write(encoded)
+	})
+
+	s.mux.HandleFunc("GET /lobby/{id}", func(writer http.ResponseWriter, request *http.Request) {
+		id := request.PathValue("id")
+		l, err := s.lr.GetLobby(context.Background(), id)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				writer.WriteHeader(http.StatusNotFound)
+			} else {
+				writer.WriteHeader(http.StatusInternalServerError)
+			}
+			writer.Write([]byte{})
+			return
+		}
+
+		response := GetLobbyResponse{
+			ID:            l.ID,
+			Name:          l.Name,
+			GameEditionId: l.GameEditionID,
+		}
+		encoded, err := json.Marshal(response)
+		if err != nil {
+			writer.WriteHeader(http.StatusInternalServerError)
+			writer.Write([]byte{})
+			return
+		}
+
+		writer.Header().Set("Content-Type", "application/json")
+		writer.Header().Set("Content-Length", strconv.Itoa(len(encoded)))
+		writer.WriteHeader(http.StatusOK)
 		writer.Write(encoded)
 	})
 
