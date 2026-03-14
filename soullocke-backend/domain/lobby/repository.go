@@ -2,13 +2,13 @@ package lobby
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"soullocke-backend/db"
 	"soullocke-backend/db/gen"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -26,10 +26,10 @@ func (r *Repository) GetLobbies(ctx context.Context) ([]*Lobby, error) {
 	q := r.QueriesFromContext(ctx)
 	storedLobbies, err := q.GetLobbies(ctx)
 	if err != nil {
-		if !errors.Is(err, pgx.ErrNoRows) {
+		if !errors.Is(err, sql.ErrNoRows) {
 			return nil, fmt.Errorf("lobby: failed to get lobbies: %w", err)
 		}
-		return []*Lobby{}, err
+		return []*Lobby{}, nil
 	}
 
 	var lobbies []*Lobby
@@ -111,7 +111,7 @@ func toCreateLobbyArgs(name string, password string, gameEditionID string) *dbge
 	return &dbgen.CreateLobbyParams{
 		Name:          name,
 		Password:      password,
-		GameEditionID: pgtype.Text{String: gameEditionID},
+		GameEditionID: pgtype.Text{String: gameEditionID, Valid: true},
 	}
 }
 

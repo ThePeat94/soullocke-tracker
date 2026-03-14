@@ -5,9 +5,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"soullocke-backend/domain/lobby"
+	"time"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
@@ -73,8 +75,26 @@ func (s *Server) Setup() error {
 	return nil
 }
 
-func (s *Server) Serve() error {
-	return http.ListenAndServe(fmt.Sprintf(":%d", s.port), corsMiddleware(s.mux))
+func (s *Server) Serve(ctx context.Context) error {
+	srv := &http.Server{
+		Addr:    fmt.Sprintf(":%d", s.port),
+		Handler: corsMiddleware(s.mux),
+	}
+
+	// Start server in background
+	go func() {
+		<-ctx.Done()
+		slog.Info("shutting down http server")
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		_ = srv.Shutdown(shutdownCtx)
+	}()
+
+	err := srv.ListenAndServe()
+	if errors.Is(err, http.ErrServerClosed) {
+		return nil
+	}
+	return err
 }
 
 func (s *Server) ExportOpenAPISpec(path string) error {
