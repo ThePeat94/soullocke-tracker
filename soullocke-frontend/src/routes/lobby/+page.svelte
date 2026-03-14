@@ -50,9 +50,6 @@
 					<p class="text-red-500">Error fetching lobby</p>
 				{/if}
 			{/snippet}
-			{#snippet footer()}
-				<PrimaryButton variant="filled" onClick={handleBtnClick}>Create Lobby</PrimaryButton>
-			{/snippet}
 		</Card>
 	</div>
 </div>
