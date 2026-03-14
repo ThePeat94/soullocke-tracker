@@ -7,10 +7,13 @@ import (
 	"soullocke-backend/db"
 	"soullocke-backend/domain/lobby"
 	"soullocke-backend/http"
+
+	"golang.org/x/sync/errgroup"
 )
 
 func main() {
 	mainCtx := context.Background()
+	groupCtx, mainCtx := errgroup.WithContext(mainCtx)
 
 	appConfig, err := config.LoadConfig("config.yml")
 	if err != nil {
@@ -36,7 +39,22 @@ func main() {
 
 	lr := lobby.NewRepository(*database)
 	server := http.NewServer(1337, lr)
-	server.Start()
+	err = server.Setup()
+	if err != nil {
+		slog.Error("Failed to start server", "error", err)
+		return
+	}
+
+	err = server.ExportOpenAPISpec("../openapi.yaml")
+	if err != nil {
+		slog.Warn("Failed to export openapi.yaml", "error", err)
+	} else {
+		slog.Info("successfully exported openapi.yaml")
+	}
+
+	groupCtx.Go(func() error {
+		return server.Serve()
+	})
 
 	select {}
 }
