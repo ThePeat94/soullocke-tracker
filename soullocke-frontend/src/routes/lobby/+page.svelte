@@ -2,14 +2,10 @@
 	import Card from '../../components/Card.svelte';
 	import PrimaryButton from '../../components/buttons/PrimaryButton.svelte';
 	import TextInput from '../../components/TextInput.svelte';
-	import { createQuery } from '@tanstack/svelte-query';
-	import { getLobbyOptions } from '../../api/generated/@tanstack/svelte-query.gen';
+	import { createLobbyQuery } from '../../api/lobby.ts';
 
 	let lobbyId = $state('');
-	const lobby = createQuery(() => ({
-			...getLobbyOptions({ path: { id: lobbyId } }),
-			enabled: lobbyId.length > 0
-	}));
+	const lobbyQuery = createLobbyQuery(() => lobbyId);
 
 	let lobbyName = $state('Test Lobby');
 
@@ -47,10 +43,10 @@
 			</header>
 			<section slot="content">
 				<TextInput label="Lobby Name" bind:value={lobbyId} />
-				{#if lobby.isSuccess}
-					{lobby.data.name}
+				{#if lobbyQuery.isSuccess}
+					{lobbyQuery.data.name}
 				{/if}
-				{#if lobby.isError}
+				{#if lobbyQuery.isError}
 					<p class="text-red-500">Error fetching lobby</p>
 				{/if}
 			</section>

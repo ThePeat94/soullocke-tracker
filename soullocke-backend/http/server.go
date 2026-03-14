@@ -100,7 +100,7 @@ func (s *Server) registerLobbyRoutes() error {
 		resp := &CreateLobbyOutput{}
 		l, err := s.lr.CreateLobby(context.Background(), i.Body.Name, i.Body.Password, i.Body.GameEditionId)
 		if err != nil {
-			return resp, huma.Error500InternalServerError(fmt.Sprintf("creating lobby: %w", err))
+			return resp, huma.Error500InternalServerError("creating lobby", err)
 		}
 		resp.Body = LobbyCreationResponse{l.ID}
 		return &CreateLobbyOutput{Body: LobbyCreationResponse{l.ID}}, nil
@@ -120,7 +120,7 @@ func (s *Server) registerLobbyRoutes() error {
 			if errors.Is(err, sql.ErrNoRows) {
 				return nil, huma.Error404NotFound(fmt.Sprintf("getting lobby: %s", i.ID))
 			}
-			return nil, huma.Error500InternalServerError(fmt.Sprintf("getting lobby: %w", err))
+			return nil, huma.Error500InternalServerError("getting lobby", err)
 		}
 
 		response := GetLobbyResponse{

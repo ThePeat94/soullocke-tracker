@@ -5,6 +5,7 @@ export default defineConfig({
 	output: 'src/api/generated',
 	plugins: [
 		'@hey-api/client-fetch',
+		'@hey-api/typescript',
 		{
 			name: '@tanstack/svelte-query',
 			queryOptions: true,
