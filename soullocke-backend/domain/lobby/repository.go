@@ -32,7 +32,7 @@ func (r *Repository) GetLobbies(ctx context.Context) ([]*Lobby, error) {
 		return []*Lobby{}, err
 	}
 
-	lobbies := make([]*Lobby, len(storedLobbies))
+	var lobbies []*Lobby
 	for _, l := range storedLobbies {
 		lobbies = append(lobbies, toDomainLobby(l))
 	}
@@ -57,7 +57,7 @@ func (r *Repository) GetLobby(ctx context.Context, id string) (*Lobby, error) {
 
 func (r *Repository) CreateLobby(ctx context.Context, name string, password string, gameEditionID string) (*Lobby, error) {
 	var domainLobby *Lobby
-	err := r.Tx(ctx, func() error {
+	err := r.Tx(ctx, func(ctx context.Context) error {
 		creationArgs := toCreateLobbyArgs(name, password, gameEditionID)
 		q := r.QueriesFromContext(ctx)
 		lobby, err := q.CreateLobby(ctx, *creationArgs)
@@ -76,16 +76,16 @@ func (r *Repository) CreateLobby(ctx context.Context, name string, password stri
 }
 
 func (r *Repository) UpdateLobby(ctx context.Context, id string, name, password string) (*Lobby, error) {
-	args, err := toUpdateLoggyArgs(id, name, password)
+	args, err := toUpdateLobbyArgs(id, name, password)
 	if err != nil {
 		return nil, fmt.Errorf("lobby: failed to create args for lobby update: %w", err)
 	}
 	var domainLobby *Lobby
-	err = r.Tx(ctx, func() error {
+	err = r.Tx(ctx, func(ctx context.Context) error {
 		q := r.QueriesFromContext(ctx)
 		lobby, uErr := q.UpdateLobby(ctx, *args)
 		if uErr != nil {
-			return fmt.Errorf("lobby: failed to update lobby: %w", err)
+			return fmt.Errorf("lobby: failed to update lobby: %w", uErr)
 		}
 		domainLobby = toDomainLobby(lobby)
 		return nil
@@ -115,7 +115,7 @@ func toCreateLobbyArgs(name string, password string, gameEditionID string) *dbge
 	}
 }
 
-func toUpdateLoggyArgs(id string, name string, password string) (*dbgen.UpdateLobbyParams, error) {
+func toUpdateLobbyArgs(id string, name string, password string) (*dbgen.UpdateLobbyParams, error) {
 	idUuid, err := uuid.Parse(id)
 	if err != nil {
 		return nil, fmt.Errorf("lobby: failed to parse uuid: %w", err)

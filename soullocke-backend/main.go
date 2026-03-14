@@ -56,5 +56,8 @@ func main() {
 		return server.Serve()
 	})
 
-	select {}
+	err = groupCtx.Wait()
+	if err != nil {
+		slog.Error("main err", "error", err)
+	}
 }

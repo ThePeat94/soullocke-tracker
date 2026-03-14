@@ -98,12 +98,12 @@ func (s *Server) registerLobbyRoutes() error {
 	}, func(ctx context.Context, i *CreateLobbyInput) (*CreateLobbyOutput, error) {
 
 		resp := &CreateLobbyOutput{}
-		l, err := s.lr.CreateLobby(context.Background(), i.Body.Name, i.Body.Password, i.Body.GameEditionId)
+		l, err := s.lr.CreateLobby(ctx, i.Body.Name, i.Body.Password, i.Body.GameEditionId)
 		if err != nil {
 			return resp, huma.Error500InternalServerError("creating lobby", err)
 		}
 		resp.Body = LobbyCreationResponse{l.ID}
-		return &CreateLobbyOutput{Body: LobbyCreationResponse{l.ID}}, nil
+		return resp, nil
 	})
 
 	huma.Register(s.api, huma.Operation{
@@ -115,7 +115,7 @@ func (s *Server) registerLobbyRoutes() error {
 		Tags:          []string{"Lobby"},
 		DefaultStatus: http.StatusOK,
 	}, func(ctx context.Context, i *GetLobbyInput) (*GetLobbyOutput, error) {
-		l, err := s.lr.GetLobby(context.Background(), i.ID)
+		l, err := s.lr.GetLobby(ctx, i.ID)
 		if err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				return nil, huma.Error404NotFound(fmt.Sprintf("getting lobby: %s", i.ID))

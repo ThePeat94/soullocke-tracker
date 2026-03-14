@@ -51,6 +51,9 @@ func (db *Database) Ping(ctx context.Context) error {
 
 func (db *Database) Migrate() error {
 	source, err := iofs.New(migrations, "migrations")
+	if err != nil {
+		return fmt.Errorf("db: failed to load migrations: %w", err)
+	}
 	m, err := migrate.NewWithSourceInstance("iofs", source, db.dsn)
 
 	if err != nil {

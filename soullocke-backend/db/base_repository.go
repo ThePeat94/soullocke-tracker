@@ -8,6 +8,10 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+type contextKey struct{}
+
+var txKey = contextKey{}
+
 type BaseRepository struct {
 	db Database
 }
@@ -19,23 +23,24 @@ func NewBaseRepository(db Database) *BaseRepository {
 }
 
 func (r *BaseRepository) QueriesFromContext(ctx context.Context) dbgen.Queries {
-	if tx, ok := ctx.Value("tx").(pgx.Tx); ok {
+	if tx, ok := ctx.Value(txKey).(pgx.Tx); ok {
 		return *dbgen.New(tx)
 	}
 
 	return *dbgen.New(r.db.pool)
 }
 
-func (r *BaseRepository) Tx(ctx context.Context, fn func() error) error {
+func (r *BaseRepository) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
 	tx, err := r.db.pool.Begin(ctx)
 	if err != nil {
 		return fmt.Errorf("db: failed to start transaction: %w", err)
 	}
+	txCtx := context.WithValue(ctx, txKey, tx)
 	defer func() {
 		_ = tx.Rollback(ctx)
 	}()
 
-	err = fn()
+	err = fn(txCtx)
 	if err != nil {
 		return fmt.Errorf("db: transaction failed: %w", err)
 	}
