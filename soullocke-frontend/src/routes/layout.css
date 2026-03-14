@@ -3,3 +3,4 @@
 @import '@skeletonlabs/skeleton/themes/crimson';
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
+@plugin '@tailwindcss/forms';
