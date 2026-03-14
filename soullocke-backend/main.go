@@ -45,7 +45,7 @@ func main() {
 		return
 	}
 
-	err = server.ExportOpenAPISpec("../openapi.yaml")
+	err = server.ExportOpenAPISpec("../openapi/openapi.yaml")
 	if err != nil {
 		slog.Warn("Failed to export openapi.yaml", "error", err)
 	} else {
