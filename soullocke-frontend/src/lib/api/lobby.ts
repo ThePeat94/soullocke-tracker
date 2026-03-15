@@ -1,7 +1,7 @@
-import { createQuery } from '@tanstack/svelte-query';
-import { getLobbyOptions } from './generated/@tanstack/svelte-query.gen.ts';
+import { createMutation, createQuery } from '@tanstack/svelte-query';
+import { createLobbyMutation, getLobbyOptions } from './generated/@tanstack/svelte-query.gen.ts';
 
-export function createLobbyQuery(getId: () => string) {
+export function getLobbyQuery(getId: () => string) {
 	return createQuery(() => {
 		const id = getId();
 
@@ -11,3 +11,11 @@ export function createLobbyQuery(getId: () => string) {
 		};
 	});
 }
+
+export const getLobbyCreationMutation = () => {
+	return createMutation(() => {
+		return {
+			...createLobbyMutation()
+		}
+	})
+};

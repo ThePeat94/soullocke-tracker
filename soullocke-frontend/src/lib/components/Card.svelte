@@ -6,28 +6,19 @@
 		header: Snippet;
 		content: Snippet;
 		footer?: Snippet;
-		onclick?: () => void;
 	}
 
 	const {
 		header,
 		content,
 		footer,
-		onclick,
 	} : Props = $props();
 
 </script>
 
 <div
 	class="card preset-filled-surface-100-900 border border-surface-200-800 card-hover divide-surface-200-800 block divide-y overflow-hidden"
-	role="cell"
-	tabindex="0"
-	onclick={onclick}
-	onkeydown={(k) => {
-		if (k.code === 'Enter') {
-			onclick?.();
-		}
-	}}
+	role="group"
 >
 	<header class="p-4">
 		{@render header()}
