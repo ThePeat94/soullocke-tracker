@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Repository struct {
@@ -58,7 +59,10 @@ func (r *Repository) GetLobby(ctx context.Context, id string) (*Lobby, error) {
 func (r *Repository) CreateLobby(ctx context.Context, name string, password string, gameEditionID string) (*Lobby, error) {
 	var domainLobby *Lobby
 	err := r.Tx(ctx, func(ctx context.Context) error {
-		creationArgs := toCreateLobbyArgs(name, password, gameEditionID)
+		creationArgs, err := toCreateLobbyArgs(name, password, gameEditionID)
+		if err != nil {
+			return err
+		}
 		q := r.QueriesFromContext(ctx)
 		lobby, err := q.CreateLobby(ctx, *creationArgs)
 		if err != nil {
@@ -107,12 +111,16 @@ func toDomainLobby(l dbgen.Lobby) *Lobby {
 	}
 }
 
-func toCreateLobbyArgs(name string, password string, gameEditionID string) *dbgen.CreateLobbyParams {
+func toCreateLobbyArgs(name string, password string, gameEditionID string) (*dbgen.CreateLobbyParams, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	if err != nil {
+		return nil, fmt.Errorf("lobby: failed to hash password: %w", err)
+	}
 	return &dbgen.CreateLobbyParams{
 		Name:          name,
-		Password:      password,
+		Password:      string(hashedPassword),
 		GameEditionID: pgtype.Text{String: gameEditionID, Valid: true},
-	}
+	}, nil
 }
 
 func toUpdateLobbyArgs(id string, name string, password string) (*dbgen.UpdateLobbyParams, error) {
