@@ -14,7 +14,7 @@ import (
 const createGameEdition = `-- name: CreateGameEdition :one
 INSERT INTO game_editions (id, name)
 VALUES ($1, $2)
-RETURNING id, name, image_src, deleted_at
+RETURNING id, name, image_src, deleted_at, updated_at
 `
 
 type CreateGameEditionParams struct {
@@ -30,13 +30,14 @@ func (q *Queries) CreateGameEdition(ctx context.Context, arg CreateGameEditionPa
 		&i.Name,
 		&i.ImageSrc,
 		&i.DeletedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const deleteGameEdition = `-- name: DeleteGameEdition :one
 DELETE FROM game_editions WHERE id = $1
-RETURNING id, name, image_src, deleted_at
+RETURNING id, name, image_src, deleted_at, updated_at
 `
 
 func (q *Queries) DeleteGameEdition(ctx context.Context, id string) (GameEdition, error) {
@@ -47,12 +48,13 @@ func (q *Queries) DeleteGameEdition(ctx context.Context, id string) (GameEdition
 		&i.Name,
 		&i.ImageSrc,
 		&i.DeletedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const getGameEditions = `-- name: GetGameEditions :many
-SELECT id, name, image_src, deleted_at FROM game_editions
+SELECT id, name, image_src, deleted_at, updated_at FROM game_editions
 `
 
 func (q *Queries) GetGameEditions(ctx context.Context) ([]GameEdition, error) {
@@ -69,6 +71,7 @@ func (q *Queries) GetGameEditions(ctx context.Context) ([]GameEdition, error) {
 			&i.Name,
 			&i.ImageSrc,
 			&i.DeletedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}

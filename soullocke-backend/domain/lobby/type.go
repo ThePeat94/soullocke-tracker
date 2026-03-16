@@ -5,8 +5,12 @@ import "context"
 type Lobby struct {
 	ID            string
 	Name          string
-	Password      string
 	GameEditionID string
+}
+
+type LobbyWithCredentials struct {
+	Lobby
+	Password string
 }
 
 type LobbyRepository interface {

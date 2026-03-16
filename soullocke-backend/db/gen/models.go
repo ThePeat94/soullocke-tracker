@@ -14,6 +14,7 @@ type GameEdition struct {
 	Name      string
 	ImageSrc  pgtype.Text
 	DeletedAt pgtype.Timestamptz
+	UpdatedAt pgtype.Timestamptz
 }
 
 type Lobby struct {
@@ -21,4 +22,6 @@ type Lobby struct {
 	Name          string
 	Password      string
 	GameEditionID pgtype.Text
+	CreatedAt     pgtype.Timestamptz
+	UpdatedAt     pgtype.Timestamptz
 }

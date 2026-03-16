@@ -44,6 +44,7 @@ paths:
                   schema:
                     type: string
                     description: Lobby ID as a UUID
+                    format: uuid
                     examples:
                         - 73beb67c-70c5-4c95-b99e-73e3c076f82f
             responses:

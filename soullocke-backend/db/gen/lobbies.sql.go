@@ -15,7 +15,7 @@ import (
 const createLobby = `-- name: CreateLobby :one
 INSERT INTO lobbies (name, password, game_edition_id)
 VALUES ($1, $2, $3)
-RETURNING id, name, password, game_edition_id
+RETURNING id, name, password, game_edition_id, created_at, updated_at
 `
 
 type CreateLobbyParams struct {
@@ -32,12 +32,14 @@ func (q *Queries) CreateLobby(ctx context.Context, arg CreateLobbyParams) (Lobby
 		&i.Name,
 		&i.Password,
 		&i.GameEditionID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const getLobbies = `-- name: GetLobbies :many
-SELECT id, name, password, game_edition_id FROM lobbies
+SELECT id, name, password, game_edition_id, created_at, updated_at FROM lobbies
 `
 
 func (q *Queries) GetLobbies(ctx context.Context) ([]Lobby, error) {
@@ -54,6 +56,8 @@ func (q *Queries) GetLobbies(ctx context.Context) ([]Lobby, error) {
 			&i.Name,
 			&i.Password,
 			&i.GameEditionID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -66,7 +70,7 @@ func (q *Queries) GetLobbies(ctx context.Context) ([]Lobby, error) {
 }
 
 const getLobby = `-- name: GetLobby :one
-SELECT id, name, password, game_edition_id FROM lobbies WHERE id = $1
+SELECT id, name, password, game_edition_id, created_at, updated_at FROM lobbies WHERE id = $1
 `
 
 func (q *Queries) GetLobby(ctx context.Context, id uuid.UUID) (Lobby, error) {
@@ -77,15 +81,17 @@ func (q *Queries) GetLobby(ctx context.Context, id uuid.UUID) (Lobby, error) {
 		&i.Name,
 		&i.Password,
 		&i.GameEditionID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const updateLobby = `-- name: UpdateLobby :one
 UPDATE lobbies
-SET name = $1, password = $2
+SET name = $1, password = $2, updated_at = now()
 WHERE id = $3
-RETURNING id, name, password, game_edition_id
+RETURNING id, name, password, game_edition_id, created_at, updated_at
 `
 
 type UpdateLobbyParams struct {
@@ -102,6 +108,8 @@ func (q *Queries) UpdateLobby(ctx context.Context, arg UpdateLobbyParams) (Lobby
 		&i.Name,
 		&i.Password,
 		&i.GameEditionID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }

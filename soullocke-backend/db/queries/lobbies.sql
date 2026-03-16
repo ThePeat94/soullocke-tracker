@@ -11,6 +11,6 @@ SELECT * FROM lobbies;
 
 -- name: UpdateLobby :one
 UPDATE lobbies
-SET name = sqlc.arg(name), password = sqlc.arg(password)
+SET name = sqlc.arg(name), password = sqlc.arg(password), updated_at = now()
 WHERE id = sqlc.arg(id)
 RETURNING *;

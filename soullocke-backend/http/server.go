@@ -2,7 +2,6 @@ package http
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -52,7 +51,7 @@ type GetLobbyOutput struct {
 }
 
 type GetLobbyInput struct {
-	ID string `path:"id" example:"73beb67c-70c5-4c95-b99e-73e3c076f82f" doc:"Lobby ID as a UUID"`
+	ID string `path:"id" example:"73beb67c-70c5-4c95-b99e-73e3c076f82f" doc:"Lobby ID as a UUID" format:"uuid"`
 }
 
 func NewServer(port uint16, lr lobby.LobbyRepository) *Server {
@@ -66,13 +65,8 @@ func NewServer(port uint16, lr lobby.LobbyRepository) *Server {
 	}
 }
 
-func (s *Server) Setup() error {
-	err := s.registerLobbyRoutes()
-
-	if err != nil {
-		return fmt.Errorf("http: failed to register lobby routes: %w", err)
-	}
-	return nil
+func (s *Server) Setup() {
+	s.registerLobbyRoutes()
 }
 
 func (s *Server) Serve(ctx context.Context) error {
@@ -105,7 +99,7 @@ func (s *Server) ExportOpenAPISpec(path string) error {
 	return os.WriteFile(path, spec, 0644)
 }
 
-func (s *Server) registerLobbyRoutes() error {
+func (s *Server) registerLobbyRoutes() {
 
 	huma.Register(s.api, huma.Operation{
 		OperationID:   "create-lobby",
@@ -120,7 +114,7 @@ func (s *Server) registerLobbyRoutes() error {
 		resp := &CreateLobbyOutput{}
 		l, err := s.lr.CreateLobby(ctx, i.Body.Name, i.Body.Password, i.Body.GameEditionId)
 		if err != nil {
-			return resp, huma.Error500InternalServerError("creating lobby", err)
+			return resp, huma.Error500InternalServerError("creating lobby: Internal Server Error", err)
 		}
 		resp.Body = LobbyCreationResponse{l.ID}
 		return resp, nil
@@ -137,10 +131,10 @@ func (s *Server) registerLobbyRoutes() error {
 	}, func(ctx context.Context, i *GetLobbyInput) (*GetLobbyOutput, error) {
 		l, err := s.lr.GetLobby(ctx, i.ID)
 		if err != nil {
-			if errors.Is(err, sql.ErrNoRows) {
-				return nil, huma.Error404NotFound(fmt.Sprintf("getting lobby: %s", i.ID))
+			if errors.Is(err, lobby.ErrNotFound) {
+				return nil, huma.Error404NotFound("getting lobby: Lobby is not existing")
 			}
-			return nil, huma.Error500InternalServerError("getting lobby", err)
+			return nil, huma.Error500InternalServerError("getting lobby: Internal Server Error", err)
 		}
 
 		response := GetLobbyResponse{
@@ -150,8 +144,6 @@ func (s *Server) registerLobbyRoutes() error {
 		}
 		return &GetLobbyOutput{Body: response}, nil
 	})
-
-	return nil
 }
 
 func corsMiddleware(next http.Handler) http.Handler {

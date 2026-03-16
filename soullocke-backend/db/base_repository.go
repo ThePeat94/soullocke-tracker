@@ -13,10 +13,10 @@ type contextKey struct{}
 var txKey = contextKey{}
 
 type BaseRepository struct {
-	db Database
+	db *Database
 }
 
-func NewBaseRepository(db Database) *BaseRepository {
+func NewBaseRepository(db *Database) *BaseRepository {
 	return &BaseRepository{
 		db: db,
 	}

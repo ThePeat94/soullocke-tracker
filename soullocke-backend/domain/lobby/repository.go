@@ -13,13 +13,17 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+var (
+	ErrNotFound = errors.New("lobby: not found")
+)
+
 type Repository struct {
-	db.BaseRepository
+	*db.BaseRepository
 }
 
-func NewRepository(database db.Database) *Repository {
+func NewRepository(database *db.Database) *Repository {
 	return &Repository{
-		BaseRepository: *db.NewBaseRepository(database),
+		BaseRepository: db.NewBaseRepository(database),
 	}
 }
 
@@ -33,7 +37,7 @@ func (r *Repository) GetLobbies(ctx context.Context) ([]*Lobby, error) {
 		return []*Lobby{}, nil
 	}
 
-	var lobbies []*Lobby
+	lobbies := make([]*Lobby, 0, len(storedLobbies))
 	for _, l := range storedLobbies {
 		lobbies = append(lobbies, toDomainLobby(l))
 	}
@@ -50,6 +54,9 @@ func (r *Repository) GetLobby(ctx context.Context, id string) (*Lobby, error) {
 	q := r.QueriesFromContext(ctx)
 	storedLobby, err := q.GetLobby(ctx, parsedUuid)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrNotFound
+		}
 		return nil, fmt.Errorf("lobby: failed to get lobby: %w", err)
 	}
 
@@ -106,7 +113,6 @@ func toDomainLobby(l dbgen.Lobby) *Lobby {
 	return &Lobby{
 		ID:            l.ID.String(),
 		Name:          l.Name,
-		Password:      l.Password,
 		GameEditionID: l.GameEditionID.String,
 	}
 }
@@ -129,9 +135,14 @@ func toUpdateLobbyArgs(id string, name string, password string) (*dbgen.UpdateLo
 		return nil, fmt.Errorf("lobby: failed to parse uuid: %w", err)
 	}
 
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	if err != nil {
+		return nil, fmt.Errorf("lobby: failed to hash password: %w", err)
+	}
+
 	return &dbgen.UpdateLobbyParams{
 		ID:       idUuid,
 		Name:     name,
-		Password: password,
+		Password: string(hashedPassword),
 	}, nil
 }

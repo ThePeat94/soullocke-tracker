@@ -43,13 +43,9 @@ func main() {
 		slog.Info("successfully migrated database")
 	}
 
-	lr := lobby.NewRepository(*database)
+	lr := lobby.NewRepository(database)
 	server := http.NewServer(appConfig.Server.Port, lr)
-	err = server.Setup()
-	if err != nil {
-		slog.Error("Failed to start server", "error", err)
-		return
-	}
+	server.Setup()
 
 	if len(os.Args) > 1 && os.Args[1] == "export-openapi" {
 		path := "../openapi/openapi.yaml"
