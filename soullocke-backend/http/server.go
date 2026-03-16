@@ -16,10 +16,11 @@ import (
 )
 
 type Server struct {
-	port uint16
-	mux  *http.ServeMux
-	api  huma.API
-	lr   lobby.LobbyRepository
+	port           uint16
+	allowedOrigins []string
+	mux            *http.ServeMux
+	api            huma.API
+	lr             lobby.LobbyRepository
 }
 
 type LobbyCreationRequest struct {
@@ -54,14 +55,15 @@ type GetLobbyInput struct {
 	ID string `path:"id" example:"73beb67c-70c5-4c95-b99e-73e3c076f82f" doc:"Lobby ID as a UUID" format:"uuid"`
 }
 
-func NewServer(port uint16, lr lobby.LobbyRepository) *Server {
+func NewServer(port uint16, allowedOrigins []string, lr lobby.LobbyRepository) *Server {
 	mux := http.NewServeMux()
 	api := humago.New(mux, huma.DefaultConfig("SoulLocker API", "0.0.1"))
 	return &Server{
-		port: port,
-		mux:  mux,
-		api:  api,
-		lr:   lr,
+		port:           port,
+		mux:            mux,
+		api:            api,
+		lr:             lr,
+		allowedOrigins: allowedOrigins,
 	}
 }
 
@@ -72,7 +74,7 @@ func (s *Server) Setup() {
 func (s *Server) Serve(ctx context.Context) error {
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", s.port),
-		Handler: corsMiddleware(s.mux),
+		Handler: corsMiddleware(s.mux, s.allowedOrigins),
 	}
 
 	// Start server in background
@@ -146,11 +148,19 @@ func (s *Server) registerLobbyRoutes() {
 	})
 }
 
-func corsMiddleware(next http.Handler) http.Handler {
+func corsMiddleware(next http.Handler, allowedOrigins []string) http.Handler {
+	allowed := make(map[string]bool, len(allowedOrigins))
+	for _, o := range allowedOrigins {
+		allowed[o] = true
+	}
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		origin := r.Header.Get("Origin")
+		if allowed[origin] {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		}
 
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusNoContent)

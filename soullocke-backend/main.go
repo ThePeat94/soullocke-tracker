@@ -44,7 +44,7 @@ func main() {
 	}
 
 	lr := lobby.NewRepository(database)
-	server := http.NewServer(appConfig.Server.Port, lr)
+	server := http.NewServer(appConfig.Server.Port, appConfig.Server.AllowedOrigins, lr)
 	server.Setup()
 
 	if len(os.Args) > 1 && os.Args[1] == "export-openapi" {

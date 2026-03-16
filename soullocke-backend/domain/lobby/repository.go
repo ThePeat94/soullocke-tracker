@@ -27,25 +27,6 @@ func NewRepository(database *db.Database) *Repository {
 	}
 }
 
-func (r *Repository) GetLobbies(ctx context.Context) ([]*Lobby, error) {
-	q := r.QueriesFromContext(ctx)
-	storedLobbies, err := q.GetLobbies(ctx)
-	if err != nil {
-		if !errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("lobby: failed to get lobbies: %w", err)
-		}
-		return []*Lobby{}, nil
-	}
-
-	lobbies := make([]*Lobby, 0, len(storedLobbies))
-	for _, l := range storedLobbies {
-		lobbies = append(lobbies, toDomainLobby(l))
-	}
-
-	return lobbies, nil
-
-}
-
 func (r *Repository) GetLobby(ctx context.Context, id string) (*Lobby, error) {
 	parsedUuid, err := uuid.Parse(id)
 	if err != nil {
@@ -75,7 +56,7 @@ func (r *Repository) CreateLobby(ctx context.Context, name string, password stri
 		if cErr != nil {
 			return cErr
 		}
-		domainLobby = toDomainLobby(lobby)
+		domainLobby = toDomainLobbyFromCreation(lobby)
 		return nil
 	})
 
@@ -86,30 +67,15 @@ func (r *Repository) CreateLobby(ctx context.Context, name string, password stri
 	return domainLobby, nil
 }
 
-func (r *Repository) UpdateLobby(ctx context.Context, id string, name, password string) (*Lobby, error) {
-	args, err := toUpdateLobbyArgs(id, name, password)
-	if err != nil {
-		return nil, fmt.Errorf("lobby: failed to create args for lobby update: %w", err)
+func toDomainLobby(l dbgen.GetLobbyRow) *Lobby {
+	return &Lobby{
+		ID:            l.ID.String(),
+		Name:          l.Name,
+		GameEditionID: l.GameEditionID.String,
 	}
-	var domainLobby *Lobby
-	err = r.Tx(ctx, func(ctx context.Context) error {
-		q := r.QueriesFromContext(ctx)
-		lobby, uErr := q.UpdateLobby(ctx, *args)
-		if uErr != nil {
-			return uErr
-		}
-		domainLobby = toDomainLobby(lobby)
-		return nil
-	})
-
-	if err != nil {
-		return nil, fmt.Errorf("lobby: failed to update lobby: %w", err)
-	}
-
-	return domainLobby, nil
 }
 
-func toDomainLobby(l dbgen.Lobby) *Lobby {
+func toDomainLobbyFromCreation(l dbgen.CreateLobbyRow) *Lobby {
 	return &Lobby{
 		ID:            l.ID.String(),
 		Name:          l.Name,
@@ -118,7 +84,7 @@ func toDomainLobby(l dbgen.Lobby) *Lobby {
 }
 
 func toCreateLobbyArgs(name string, password string, gameEditionID string) (*dbgen.CreateLobbyParams, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 10)
 	if err != nil {
 		return nil, fmt.Errorf("lobby: failed to hash password: %w", err)
 	}
@@ -126,23 +92,5 @@ func toCreateLobbyArgs(name string, password string, gameEditionID string) (*dbg
 		Name:          name,
 		Password:      string(hashedPassword),
 		GameEditionID: pgtype.Text{String: gameEditionID, Valid: true},
-	}, nil
-}
-
-func toUpdateLobbyArgs(id string, name string, password string) (*dbgen.UpdateLobbyParams, error) {
-	idUuid, err := uuid.Parse(id)
-	if err != nil {
-		return nil, fmt.Errorf("lobby: failed to parse uuid: %w", err)
-	}
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-	if err != nil {
-		return nil, fmt.Errorf("lobby: failed to hash password: %w", err)
-	}
-
-	return &dbgen.UpdateLobbyParams{
-		ID:       idUuid,
-		Name:     name,
-		Password: string(hashedPassword),
 	}, nil
 }

@@ -22,7 +22,8 @@ type Database struct {
 }
 
 type Server struct {
-	Port uint16 `koanf:"port"`
+	Port           uint16   `koanf:"port"`
+	AllowedOrigins []string `koanf:"allowed_origins"`
 }
 
 func (dbConfig *Database) DSN() string {

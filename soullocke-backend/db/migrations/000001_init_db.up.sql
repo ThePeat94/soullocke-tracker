@@ -14,5 +14,5 @@ CREATE TABLE lobbies
     password        TEXT NOT NULL,
     game_edition_id TEXT REFERENCES game_editions (id),
     created_at TIMESTAMPTZ DEFAULT now(),
-    updated_at TIMESTAMPTZ NULL
+    updated_at TIMESTAMPTZ DEFAULT now()
 );

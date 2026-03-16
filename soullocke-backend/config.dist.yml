@@ -7,3 +7,5 @@ database:
 
 server:
   port: 1337
+  allowed_origins:
+    - "http://localhost:5173"

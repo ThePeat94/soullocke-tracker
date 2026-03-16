@@ -15,7 +15,7 @@ import (
 const createLobby = `-- name: CreateLobby :one
 INSERT INTO lobbies (name, password, game_edition_id)
 VALUES ($1, $2, $3)
-RETURNING id, name, password, game_edition_id, created_at, updated_at
+RETURNING id, name, game_edition_id
 `
 
 type CreateLobbyParams struct {
@@ -24,92 +24,34 @@ type CreateLobbyParams struct {
 	GameEditionID pgtype.Text
 }
 
-func (q *Queries) CreateLobby(ctx context.Context, arg CreateLobbyParams) (Lobby, error) {
-	row := q.db.QueryRow(ctx, createLobby, arg.Name, arg.Password, arg.GameEditionID)
-	var i Lobby
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Password,
-		&i.GameEditionID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
+type CreateLobbyRow struct {
+	ID            uuid.UUID
+	Name          string
+	GameEditionID pgtype.Text
 }
 
-const getLobbies = `-- name: GetLobbies :many
-SELECT id, name, password, game_edition_id, created_at, updated_at FROM lobbies
-`
-
-func (q *Queries) GetLobbies(ctx context.Context) ([]Lobby, error) {
-	rows, err := q.db.Query(ctx, getLobbies)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Lobby
-	for rows.Next() {
-		var i Lobby
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.Password,
-			&i.GameEditionID,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+// @type LobbyRow
+func (q *Queries) CreateLobby(ctx context.Context, arg CreateLobbyParams) (CreateLobbyRow, error) {
+	row := q.db.QueryRow(ctx, createLobby, arg.Name, arg.Password, arg.GameEditionID)
+	var i CreateLobbyRow
+	err := row.Scan(&i.ID, &i.Name, &i.GameEditionID)
+	return i, err
 }
 
 const getLobby = `-- name: GetLobby :one
-SELECT id, name, password, game_edition_id, created_at, updated_at FROM lobbies WHERE id = $1
+SELECT id, name, game_edition_id FROM lobbies WHERE id = $1
 `
 
-func (q *Queries) GetLobby(ctx context.Context, id uuid.UUID) (Lobby, error) {
+type GetLobbyRow struct {
+	ID            uuid.UUID
+	Name          string
+	GameEditionID pgtype.Text
+}
+
+// @type LobbyRow
+func (q *Queries) GetLobby(ctx context.Context, id uuid.UUID) (GetLobbyRow, error) {
 	row := q.db.QueryRow(ctx, getLobby, id)
-	var i Lobby
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Password,
-		&i.GameEditionID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const updateLobby = `-- name: UpdateLobby :one
-UPDATE lobbies
-SET name = $1, password = $2, updated_at = now()
-WHERE id = $3
-RETURNING id, name, password, game_edition_id, created_at, updated_at
-`
-
-type UpdateLobbyParams struct {
-	Name     string
-	Password string
-	ID       uuid.UUID
-}
-
-func (q *Queries) UpdateLobby(ctx context.Context, arg UpdateLobbyParams) (Lobby, error) {
-	row := q.db.QueryRow(ctx, updateLobby, arg.Name, arg.Password, arg.ID)
-	var i Lobby
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Password,
-		&i.GameEditionID,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
+	var i GetLobbyRow
+	err := row.Scan(&i.ID, &i.Name, &i.GameEditionID)
 	return i, err
 }
