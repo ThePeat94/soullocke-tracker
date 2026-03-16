@@ -36,17 +36,15 @@
 
 
 
-<div class="grid grid-cols-3 mt-10 gap-4">
-	<div class="col-start-2">
-		<Card>
-			{#snippet header()}
-				<h2 class="h4">Create Lobby</h2>
-			{/snippet}
-			{#snippet content()}
-				<TextInput label="Lobby Name" bind:value={lobbyName} />
-				<div class="pt-2 pb-2"></div>
-				<TextInput label="Password" type="password" bind:value={lobbyPassword} />
-				<div class="pt-2 pb-2"></div>
+<div class="mx-auto flex max-w-1/2 flex-col gap-4 mt-10">
+	<Card>
+		{#snippet header()}
+			<h2 class="h4">Create Lobby</h2>
+		{/snippet}
+		{#snippet content()}
+			<div class="flex flex-col gap-4">
+				<TextInput label="Lobby Name" bind:value={lobbyName} disabled={createLobbyMutation.isPending} />
+				<TextInput label="Password" type="password" bind:value={lobbyPassword} disabled={createLobbyMutation.isPending} />
 				<Combobox
 					items={[
 						{ label: 'FireRed', value: 'firered', group: 'Generation 3 - Remake' },
@@ -58,28 +56,26 @@
 					label="Game Edition"
 					bind:value={gameEdition}
 				/>
-			{/snippet}
-			{#snippet footer()}
-				<PrimaryButton variant="filled" onClick={handleCreateLobbyClick}>Create Lobby</PrimaryButton>
-			{/snippet}
-		</Card>
-	</div>
-	<div class="col-start-2">
-		<Card>
-			{#snippet header()}
-				<h2 class="h4">Get Lobby</h2>
-			{/snippet}
-			{#snippet content()}
-				<TextInput label="Lobby Name" bind:value={lobbyId} />
-				{#if lobbyQuery.isSuccess}
-					{lobbyQuery.data.name}
-				{/if}
-				{#if lobbyQuery.isError}
-					<p class="text-red-500">Error fetching lobby</p>
-				{/if}
-			{/snippet}
-		</Card>
-	</div>
+			</div>
+		{/snippet}
+		{#snippet footer()}
+			<PrimaryButton variant="filled" onClick={handleCreateLobbyClick} disabled={createLobbyMutation.isPending}>Create Lobby</PrimaryButton>
+		{/snippet}
+	</Card>
+	<Card>
+		{#snippet header()}
+			<h2 class="h4">Get Lobby</h2>
+		{/snippet}
+		{#snippet content()}
+			<TextInput label="Lobby Name" bind:value={lobbyId} />
+			{#if lobbyQuery.isSuccess}
+				{lobbyQuery.data.name}
+			{/if}
+			{#if lobbyQuery.isError}
+				<p class="text-red-500">Error fetching lobby</p>
+			{/if}
+		{/snippet}
+	</Card>
 	{#if createLobbyMutation.isSuccess && createLobbyMutation.data}
 		<div class="col-start-2">
 			<Card>

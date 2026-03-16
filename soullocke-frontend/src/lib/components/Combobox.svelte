@@ -1,39 +1,42 @@
 <script lang="ts" generics="T extends unknown">
 	import { Combobox, Portal, type ComboboxRootProps, useListCollection } from '@skeletonlabs/skeleton-svelte';
 
+	type ComboboxItem = {
+		label: string;
+		value: T;
+		group?: string;
+	};
+
 	type Props = {
 		label: string;
-		items: { label: string; value: T, group?: string }[];
+		items: ComboboxItem[];
 		value?: string;
+		disabled?: boolean;
 	};
 
 	let {
 		label,
 		items,
+		disabled = false,
 		value = $bindable()
 	} : Props = $props();
 	const comboboxValue = $derived(value ? [value] : []);
 
-	let filteredItems = $state(items);
+	let filterText = $state<string>()
 
 	const collection = $derived(
 		useListCollection({
-			items: filteredItems,
+			items: items.filter((item) => item.label.toLowerCase().includes(filterText?.toLowerCase() ?? '')),
 			groupBy: (item) => item.group ?? '',
 		}),
 	);
 
 	const onOpenChange = () => {
-		filteredItems = items;
+		filterText = '';
 	};
 
 	const onInputValueChange: ComboboxRootProps['onInputValueChange'] = (event) => {
-		const filtered = items.filter((item) => item.label.toLowerCase().includes(event.inputValue.toLowerCase()));
-		if (filtered.length > 0) {
-			filteredItems = filtered;
-		} else {
-			filteredItems = items;
-		}
+		filterText = event.inputValue;
 	};
 </script>
 
@@ -43,13 +46,14 @@
 	{collection}
 	{onOpenChange}
 	{onInputValueChange}
+	{disabled}
 	value={comboboxValue}
 	multiple={false}
 	onValueChange={(e) => { value = e.value.length === 1 ? e.value[0] : undefined }}
 >
 	<Combobox.Label>{label}</Combobox.Label>
 	<Combobox.Control>
-		<Combobox.Input />
+		<Combobox.Input class="p-3 rounded-md ring-1 hover:ring-surface-400"/>
 		<Combobox.Trigger />
 	</Combobox.Control>
 	<Combobox.ClearTrigger>Clear</Combobox.ClearTrigger>
@@ -60,7 +64,7 @@
 					<Combobox.ItemGroup>
 						<Combobox.ItemGroupLabel>{type}</Combobox.ItemGroupLabel>
 						{#each items as item (item.value)}
-							<Combobox.Item {item}>
+							<Combobox.Item {item} class="p-2">
 								<Combobox.ItemText>{item.label}</Combobox.ItemText>
 								<Combobox.ItemIndicator />
 							</Combobox.Item>

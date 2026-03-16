@@ -2,9 +2,9 @@
 
 import { type MutationOptions, queryOptions } from '@tanstack/svelte-query';
 
-import { client } from '../client.gen.ts';
-import { createLobby, getLobby, type Options } from '../sdk.gen.ts';
-import type { CreateLobbyData, CreateLobbyError, CreateLobbyResponse, GetLobbyData, GetLobbyError, GetLobbyResponse2 } from '../types.gen.ts';
+import { client } from '../client.gen';
+import { createLobby, getLobby, type Options } from '../sdk.gen';
+import type { CreateLobbyData, CreateLobbyError, CreateLobbyResponse, GetLobbyData, GetLobbyError, GetLobbyResponse2 } from '../types.gen';
 
 /**
  * Creates a new lobby

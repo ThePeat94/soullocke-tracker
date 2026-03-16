@@ -10,15 +10,17 @@
 
 	type Props = {
 		variant : VariantType,
+		disabled?: boolean,
 		onClick : () => void,
 	};
 
 	let {
 		variant,
 		onClick,
+		disabled = false,
 		children,
 	} : PropsWithChildren<Props> = $props()
 
 </script>
 
-<button type="button" class={`btn ${variantClasses[variant]}`} onclick={onClick}>{@render children()}</button>
+<button type="button" {disabled} class={`btn ${variantClasses[variant]}`} onclick={onClick}>{@render children()}</button>

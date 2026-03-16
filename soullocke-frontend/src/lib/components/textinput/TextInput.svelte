@@ -6,6 +6,7 @@
 		label: string
 		placeholder?: string
 		type?: InputType
+		disabled?: boolean
 	};
 
 	let {
@@ -13,11 +14,12 @@
 		label,
 		placeholder,
 		type = 'text',
+		disabled = false,
 	} : Props = $props();
 </script>
 
 
 <label class="label">
 	<span class="label-text">{label}</span>
-	<input type={type} class="input p-3 rounded-md border hover:border-gray-50" bind:value={value} placeholder={placeholder}/>
+	<input type={type} {disabled} class="input p-3 rounded-md ring-1 hover:ring-surface-400" bind:value={value} placeholder={placeholder}/>
 </label>
