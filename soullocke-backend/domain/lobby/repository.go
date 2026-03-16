@@ -66,14 +66,14 @@ func (r *Repository) GetLobby(ctx context.Context, id string) (*Lobby, error) {
 func (r *Repository) CreateLobby(ctx context.Context, name string, password string, gameEditionID string) (*Lobby, error) {
 	var domainLobby *Lobby
 	err := r.Tx(ctx, func(ctx context.Context) error {
-		creationArgs, err := toCreateLobbyArgs(name, password, gameEditionID)
-		if err != nil {
-			return err
+		creationArgs, cErr := toCreateLobbyArgs(name, password, gameEditionID)
+		if cErr != nil {
+			return cErr
 		}
 		q := r.QueriesFromContext(ctx)
-		lobby, err := q.CreateLobby(ctx, *creationArgs)
-		if err != nil {
-			return fmt.Errorf("lobby: failed to create lobby: %w", err)
+		lobby, cErr := q.CreateLobby(ctx, *creationArgs)
+		if cErr != nil {
+			return cErr
 		}
 		domainLobby = toDomainLobby(lobby)
 		return nil
@@ -96,7 +96,7 @@ func (r *Repository) UpdateLobby(ctx context.Context, id string, name, password 
 		q := r.QueriesFromContext(ctx)
 		lobby, uErr := q.UpdateLobby(ctx, *args)
 		if uErr != nil {
-			return fmt.Errorf("lobby: failed to update lobby: %w", uErr)
+			return uErr
 		}
 		domainLobby = toDomainLobby(lobby)
 		return nil
