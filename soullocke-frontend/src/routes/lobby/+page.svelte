@@ -71,7 +71,7 @@
 		{#snippet footer()}
 			<PrimaryButton
 				variant="filled"
-				disabled={createLobbyMutation.isPending || !lobbyNameValid}
+				disabled={createLobbyMutation.isPending || !lobbyNameValid || !lobbyPasswordValid || !gameEdition}
 				onClick={handleCreateLobbyClick}
 			>
 				Create Lobby

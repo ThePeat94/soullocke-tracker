@@ -17,5 +17,5 @@ CREATE TABLE lobbies
     updated_at TIMESTAMPTZ DEFAULT now(),
 
     CONSTRAINT password_min_length CHECK (length(password) >= 8),
-    CONSTRAINT name_length CHECK (length(name) BETWEEN 8 AND 255)
+    CONSTRAINT name_length CHECK (length(name) BETWEEN 10 AND 255)
 );

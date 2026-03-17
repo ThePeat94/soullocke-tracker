@@ -24,8 +24,8 @@ type Server struct {
 }
 
 type LobbyCreationRequest struct {
-	Name          string `json:"name" minLength:"1" maxLength:"255" example:"Weekend Lobby"`
-	Password      string `json:"password" minLength:"1" maxLength:"255" example:"f00b4r"`
+	Name          string `json:"name" minLength:"10" maxLength:"255" example:"Weekend Lobby"`
+	Password      string `json:"password" minLength:"8" maxLength:"255" example:"f00b4r1234"`
 	GameEditionId string `json:"gameEditionId" minLength:"1" maxLength:"255" example:"firered" doc:"The game edition id of the pokemon version"`
 }
 
@@ -160,6 +160,7 @@ func corsMiddleware(next http.Handler, allowedOrigins []string) http.Handler {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
 		}
 
 		if r.Method == http.MethodOptions {
