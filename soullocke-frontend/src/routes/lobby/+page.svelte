@@ -2,15 +2,14 @@
 	import Card from '$components/Card.svelte';
 	import PrimaryButton from '$components/buttons/PrimaryButton.svelte';
 	import TextInput from '$components/textinput/TextInput.svelte';
-	import { getLobbyCreationMutation, getLobbyQuery } from '$api/lobby';
+	import { getLobbyCreationMutation } from '$api/lobby';
 	import Combobox from '$components/Combobox.svelte';
-
-	let lobbyId = $state('');
-	const lobbyQuery = getLobbyQuery(() => lobbyId);
 
 	let lobbyName = $state('');
 	let lobbyPassword = $state('')
 	let gameEdition = $state<string>();
+	let lobbyNameValid = $state(false);
+	let lobbyPasswordValid = $state(false);
 
 	const createLobbyMutation = getLobbyCreationMutation();
 
@@ -20,21 +19,18 @@
 		}
 		createLobbyMutation.mutate({
 			body: {
-				name: lobbyName,
+				name: lobbyName.trim(),
 				password: lobbyPassword,
 				gameEditionId: gameEdition,
 			}
 		});
 	};
 
-
 </script>
 
 <h1 class="text-center text-3xl">
 	Lobby Management
 </h1>
-
-
 
 <div class="mx-auto flex max-w-1/2 flex-col gap-4 mt-10">
 	<Card>
@@ -43,8 +39,22 @@
 		{/snippet}
 		{#snippet content()}
 			<div class="flex flex-col gap-4">
-				<TextInput label="Lobby Name" bind:value={lobbyName} disabled={createLobbyMutation.isPending} />
-				<TextInput label="Password" type="password" bind:value={lobbyPassword} disabled={createLobbyMutation.isPending} />
+				<TextInput
+					label="Lobby Name"
+					disabled={createLobbyMutation.isPending}
+					minLength={10}
+					maxLength={255}
+					bind:value={lobbyName}
+					bind:valid={lobbyNameValid}
+				/>
+				<TextInput
+					label="Password"
+					type="password"
+					disabled={createLobbyMutation.isPending}
+					minLength={8}
+					bind:value={lobbyPassword}
+					bind:valid={lobbyPasswordValid}
+				/>
 				<Combobox
 					items={[
 						{ label: 'FireRed', value: 'firered', group: 'Generation 3 - Remake' },
@@ -59,21 +69,13 @@
 			</div>
 		{/snippet}
 		{#snippet footer()}
-			<PrimaryButton variant="filled" onClick={handleCreateLobbyClick} disabled={createLobbyMutation.isPending}>Create Lobby</PrimaryButton>
-		{/snippet}
-	</Card>
-	<Card>
-		{#snippet header()}
-			<h2 class="h4">Get Lobby</h2>
-		{/snippet}
-		{#snippet content()}
-			<TextInput label="Lobby Name" bind:value={lobbyId} />
-			{#if lobbyQuery.isSuccess}
-				{lobbyQuery.data.name}
-			{/if}
-			{#if lobbyQuery.isError}
-				<p class="text-red-500">Error fetching lobby</p>
-			{/if}
+			<PrimaryButton
+				variant="filled"
+				disabled={createLobbyMutation.isPending || !lobbyNameValid}
+				onClick={handleCreateLobbyClick}
+			>
+				Create Lobby
+			</PrimaryButton>
 		{/snippet}
 	</Card>
 	{#if createLobbyMutation.isSuccess && createLobbyMutation.data}
@@ -95,7 +97,7 @@
 					<h2 class="h4">Error Creating Lobby</h2>
 				{/snippet}
 				{#snippet content()}
-					<p class="text-red-500">Error Error Error :(</p>
+					<p class="text-error-500">Error Error Error :(</p>
 				{/snippet}
 			</Card>
 		</div>
