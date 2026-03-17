@@ -14,5 +14,8 @@ CREATE TABLE lobbies
     password        TEXT NOT NULL,
     game_edition_id TEXT REFERENCES game_editions (id),
     created_at TIMESTAMPTZ DEFAULT now(),
-    updated_at TIMESTAMPTZ DEFAULT now()
+    updated_at TIMESTAMPTZ DEFAULT now(),
+
+    CONSTRAINT password_min_length CHECK (length(password) >= 8),
+    CONSTRAINT name_length CHECK (length(name) BETWEEN 8 AND 255)
 );
