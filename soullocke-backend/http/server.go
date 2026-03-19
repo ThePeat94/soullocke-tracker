@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"soullocke-backend/domain/lobby"
+	"strings"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -170,4 +171,11 @@ func corsMiddleware(next http.Handler, allowedOrigins []string) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func (b *LobbyCreationRequest) Resolve(ctx huma.Context, prefix *huma.PathBuffer) []error {
+	b.Name = strings.TrimSpace(b.Name)
+	b.GameEditionId = strings.TrimSpace(b.GameEditionId)
+	b.Password = strings.TrimSpace(b.Password)
+	return nil
 }
