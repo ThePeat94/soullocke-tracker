@@ -162,13 +162,13 @@ components:
                     type: string
                     examples:
                         - Weekend Lobby
-                    minLength: 1
+                    minLength: 10
                     maxLength: 255
                 password:
                     type: string
                     examples:
-                        - f00b4r
-                    minLength: 1
+                        - f00b4r1234
+                    minLength: 8
                     maxLength: 255
             required:
                 - name

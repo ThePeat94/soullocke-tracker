@@ -173,9 +173,22 @@ func corsMiddleware(next http.Handler, allowedOrigins []string) http.Handler {
 	})
 }
 
-func (b *LobbyCreationRequest) Resolve(ctx huma.Context, prefix *huma.PathBuffer) []error {
+func (b *LobbyCreationRequest) Resolve(ctx huma.Context) []error {
 	b.Name = strings.TrimSpace(b.Name)
 	b.GameEditionId = strings.TrimSpace(b.GameEditionId)
 	b.Password = strings.TrimSpace(b.Password)
-	return nil
+
+	var errs []error
+
+	if n := len(b.Name); n < 10 || n > 255 {
+		errs = append(errs, fmt.Errorf("name length must be between 10 and 255"))
+	}
+	if n := len(b.Password); n < 8 || n > 255 {
+		errs = append(errs, fmt.Errorf("password length must be between 8 and 255"))
+	}
+	if n := len(b.GameEditionId); n == 0 {
+		errs = append(errs, fmt.Errorf("a game edition must be set"))
+	}
+
+	return errs
 }
