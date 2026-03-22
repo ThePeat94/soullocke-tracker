@@ -1,3 +1,5 @@
+.PHONY: generate-sql export-openapi build run clean
+
 generate-sql:
 	sqlc generate
 
@@ -6,7 +8,7 @@ export-openapi:
 
 build:
 	mkdir -p dist
-	go build -o dist/soullocke-backend main.go
+	go build -o dist/soullocke-backend .
 
 run: build
 	./dist/soullocke-backend

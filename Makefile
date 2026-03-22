@@ -1,3 +1,5 @@
+.PHONY: generate-client boot
+
 generate-client:
 	$(MAKE) -C soullocke-backend export-openapi
 	$(MAKE) -C soullocke-frontend generate
