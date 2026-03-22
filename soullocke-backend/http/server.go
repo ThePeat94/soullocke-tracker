@@ -117,6 +117,7 @@ func (s *Server) registerLobbyRoutes() {
 		resp := &CreateLobbyOutput{}
 		l, err := s.lr.CreateLobby(ctx, i.Body.Name, i.Body.Password, i.Body.GameEditionId)
 		if err != nil {
+			slog.Error("error creating lobby", "error", err)
 			return resp, huma.Error500InternalServerError("creating lobby: Internal Server Error", err)
 		}
 		resp.Body = LobbyCreationResponse{l.ID}
@@ -135,8 +136,10 @@ func (s *Server) registerLobbyRoutes() {
 		l, err := s.lr.GetLobby(ctx, i.ID)
 		if err != nil {
 			if errors.Is(err, lobby.ErrNotFound) {
+				slog.Warn("lobby not found", "id", i.ID)
 				return nil, huma.Error404NotFound("getting lobby: Lobby is not existing")
 			}
+			slog.Error("error getting lobby", "error", err)
 			return nil, huma.Error500InternalServerError("getting lobby: Internal Server Error", err)
 		}
 
