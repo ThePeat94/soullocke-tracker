@@ -6,6 +6,7 @@
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
+		"generate": "openapi-ts",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
@@ -14,8 +15,7 @@
 		"format": "prettier --write .",
 		"test:e2e": "playwright test",
 		"test": "npm run test:unit -- --run && npm run test:e2e",
-		"test:unit": "vitest",
-		"openapi-ts": "openapi-ts"
+		"test:unit": "vitest"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^2.0.2",
@@ -48,6 +48,7 @@
 		"vitest": "^4.0.18"
 	},
 	"dependencies": {
+		"@sveltejs/adapter-static": "^3.0.10",
 		"@tanstack/svelte-query": "^6.1.0"
 	}
 }
