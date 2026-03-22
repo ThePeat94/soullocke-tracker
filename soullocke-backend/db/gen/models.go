@@ -2,13 +2,26 @@
 // versions:
 //   sqlc v1.30.0
 
-package db
+package dbgen
 
-type SaveFile struct {
-	ID int32
+import (
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+)
+
+type GameEdition struct {
+	ID        string
+	Name      string
+	ImageSrc  pgtype.Text
+	DeletedAt pgtype.Timestamptz
+	UpdatedAt pgtype.Timestamptz
 }
 
-type User struct {
-	ID   int32
-	Name string
+type Lobby struct {
+	ID            uuid.UUID
+	Name          string
+	Password      string
+	GameEditionID pgtype.Text
+	CreatedAt     pgtype.Timestamptz
+	UpdatedAt     pgtype.Timestamptz
 }

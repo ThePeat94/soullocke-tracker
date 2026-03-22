@@ -65,6 +65,12 @@ Als Spieler möchte ich den Grund für unbrauchbare Pokemon einsehen können, um
 
 Als Spieler möchte ich neben Locations auch gifted Pokemon eintragen können, um diese gesondert von den statischen Encountern zu tracken. 
 
+Als Spieler möchte ich sehen, welche Spieler für eine Location bereits einen Encounter erfasst haben und welche noch fehlen, damit wir Links vollständig abschließen können.
+
+Als Spieler möchte ich sehen, welche Locations bereits verwendet oder gesperrt sind, damit keine doppelten Encounter entstehen.
+
+Als Spieler möchte ich erkennen, ob ein Encounter noch unvollständig ist, damit offene Einträge nicht übersehen werden.
+
 
 
 ## Utility

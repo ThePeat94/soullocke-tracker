@@ -10,6 +10,7 @@ import (
 
 type Config struct {
 	Database Database `koanf:"database"`
+	Server   Server   `koanf:"server"`
 }
 
 type Database struct {
@@ -18,6 +19,11 @@ type Database struct {
 	User     string `koanf:"user"`
 	Password string `koanf:"password"`
 	Database string `koanf:"db"`
+}
+
+type Server struct {
+	Port           uint16   `koanf:"port"`
+	AllowedOrigins []string `koanf:"allowed_origins"`
 }
 
 func (dbConfig *Database) DSN() string {

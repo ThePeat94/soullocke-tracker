@@ -4,3 +4,8 @@ database:
   user: dummy_user
   password: dummy_password
   db: dummy_db
+
+server:
+  port: 1337
+  allowed_origins:
+    - "http://localhost:5173"
