@@ -50,6 +50,21 @@ export type ErrorModel = {
     type?: string;
 };
 
+export type GameEditionDto = {
+    /**
+     * Game Edition Generation
+     */
+    generation: number;
+    /**
+     * Game Edition ID
+     */
+    id: string;
+    /**
+     * Game Edition Name
+     */
+    name: string;
+};
+
 export type GetLobbyResponse = {
     /**
      * A URL to the JSON Schema for this object.
@@ -132,6 +147,31 @@ export type LobbyCreationResponseWritable = {
      */
     lobbyId: string;
 };
+
+export type GetEditionsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/editions';
+};
+
+export type GetEditionsErrors = {
+    /**
+     * Error
+     */
+    default: ErrorModel;
+};
+
+export type GetEditionsError = GetEditionsErrors[keyof GetEditionsErrors];
+
+export type GetEditionsResponses = {
+    /**
+     * OK
+     */
+    200: Array<GameEditionDto>;
+};
+
+export type GetEditionsResponse = GetEditionsResponses[keyof GetEditionsResponses];
 
 export type CreateLobbyData = {
     body: LobbyCreationRequestWritable;

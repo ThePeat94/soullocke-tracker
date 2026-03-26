@@ -4,6 +4,7 @@
 	import TextInput from '$components/textinput/TextInput.svelte';
 	import { getLobbyCreationMutation } from '$api/lobby';
 	import Combobox from '$components/Combobox.svelte';
+	import { getEditionsQuery } from '$api/editions';
 
 	let lobbyName = $state('');
 	let lobbyPassword = $state('')
@@ -11,6 +12,7 @@
 	let lobbyNameValid = $state(false);
 	let lobbyPasswordValid = $state(false);
 
+	const { data = [] } = getEditionsQuery();
 	const createLobbyMutation = getLobbyCreationMutation();
 
 	const handleCreateLobbyClick = (): void => {
@@ -56,13 +58,13 @@
 					bind:valid={lobbyPasswordValid}
 				/>
 				<Combobox
-					items={[
-						{ label: 'FireRed', value: 'firered', group: 'Generation 3 - Remake' },
-						{ label: 'LeafGreen', value: 'leafgreen', group: 'Generation 3 - Remake' },
-						{ label: 'Emerald', value: 'emerald', group: 'Generation 3' },
-						{ label: 'Ruby', value: 'ruby', group: 'Generation 3' },
-						{ label: 'Sapphire', value: 'sapphire', group: 'Generation 3' },
-					]}
+					items={
+						data.map((edition) => ({
+							label: edition.name,
+							value: edition.id,
+							group: edition.generation ? `Generation ${edition.generation}` : undefined,
+						}))
+					}
 					label="Game Edition"
 					bind:value={gameEdition}
 				/>
