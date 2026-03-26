@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"soullocke-backend/domain/game_edition"
 	"soullocke-backend/domain/lobby"
 	"time"
 
@@ -16,14 +17,15 @@ import (
 )
 
 type Server struct {
-	port            uint16
-	allowedOrigins  []string
-	mux             *http.ServeMux
-	api             huma.API
-	lobbyController *LobbyController
+	port                  uint16
+	allowedOrigins        []string
+	mux                   *http.ServeMux
+	api                   huma.API
+	lobbyController       *LobbyController
+	gameEditionController *GameEditionsController
 }
 
-func NewServer(port uint16, allowedOrigins []string, lr lobby.LobbyRepository) *Server {
+func NewServer(port uint16, allowedOrigins []string, lr lobby.LobbyRepository, ger game_edition.GameEditionRepository) *Server {
 	mux := http.NewServeMux()
 	api := humago.New(mux, huma.DefaultConfig("SoulLocker API", "0.0.1"))
 	return &Server{
@@ -34,11 +36,15 @@ func NewServer(port uint16, allowedOrigins []string, lr lobby.LobbyRepository) *
 		lobbyController: &LobbyController{
 			lr: lr,
 		},
+		gameEditionController: &GameEditionsController{
+			ger: ger,
+		},
 	}
 }
 
 func (s *Server) Setup() {
 	s.lobbyController.RegisterLobbyRoutes(s)
+	s.gameEditionController.RegisterRoutes(s)
 }
 
 func (s *Server) Serve(ctx context.Context) error {
