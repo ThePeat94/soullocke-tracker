@@ -2,7 +2,7 @@
 set -euo pipefail
 set -a
 source .env
-set -a
+set +a
 
 DUMP_FILE_NAME="pokeapi.dump"
 ZIPPED_NAME="$DUMP_FILE_NAME.zip"
@@ -14,7 +14,7 @@ log() {
 
 log "$ZIPPED_NAME"
 
-init_psql() {
+blank_psql() {
     PGPASSWORD="$DB_PASSWORD" \
     psql \
       -h "$DB_HOST" \
@@ -34,6 +34,17 @@ scratch_psql() {
     -d "$SCRATCH_DATABASE" \
     -v ON_ERROR_STOP=1 \
     "$@"
+}
+
+app_psql() {
+    PGPASSWORD="$DB_PASSWORD" \
+    psql \
+      -h "$DB_HOST" \
+      -p "$DB_PORT" \
+      -U "$DB_USERNAME" \
+      -d "$TARGET_DATABASE" \
+      -v ON_ERROR_STOP=1 \
+      "$@"
 }
 
 restore_into_temp_database() {
@@ -61,15 +72,44 @@ download_latest_dump() {
   gunzip -S .zip ./"$ZIPPED_NAME"
 }
 
+create_temp_db_and_role() {
+  log "creating temporary database"
+  blank_psql -f ./sql/01_setup_temp_db.sql
+}
+
+teardown_temp_db_and_role() {
+  log "tearing down"
+  blank_psql -f ./sql/XX_teardown_temp_db.sql
+}
+
 cleanup() {
   rm ./"$DUMP_FILE_NAME"
 }
 
+copy_from_temp_to_stage() {
+  log "start copying data from temp to stage"
+
+  log "setting up stage"
+  app_psql -f ./sql/02_setup_stage.sql
+
+  log "copying version groups"
+  scratch_psql -Atc "COPY (SELECT id, name, generation_id FROM public.pokemon_v2_versiongroup ORDER BY id) TO STDOUT WITH CSV" \
+  | app_psql -c "\COPY poke_stage.version_group (id, name, generation_id) FROM STDIN WITH CSV"
+
+  log "copying versions"
+  scratch_psql -Atc "COPY (SELECT id, name, version_group_id FROM public.pokemon_v2_version ORDER BY id) TO STDOUT WITH CSV" \
+  | app_psql -c "\COPY poke_stage.version (id, name, version_group_id) FROM STDIN WITH CSV"
+
+  log "transforming data"
+  app_psql -f ./sql/03_transform_into_app.sql
+
+  log "tearing down stage"
+  app_psql -f ./sql/XX_teardown_stage.sql
+}
+
 log "starting etl for pokemon data"
+trap 'cleanup; teardown_temp_db_and_role' EXIT
 download_latest_dump
-log "creating temporary database"
-init_psql -f ./sql/01_setup_temp_db.sql
+create_temp_db_and_role
 restore_into_temp_database
-log "tearing down"
-init_psql -f ./sql/XX_teardown_temp_db.sql
-cleanup
+copy_from_temp_to_stage

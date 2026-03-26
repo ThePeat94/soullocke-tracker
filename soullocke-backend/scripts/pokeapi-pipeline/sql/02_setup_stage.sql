@@ -1,11 +1,11 @@
-CREATE SCHEMA IF NOT EXISTS poke_stage;
+DROP SCHEMA IF EXISTS poke_stage CASCADE;
+CREATE SCHEMA poke_stage;
 
 CREATE TABLE IF NOT EXISTS poke_stage.version_group
 (
     id            bigint PRIMARY KEY,
     name          text   NOT NULL,
-    generation_id bigint NOT NULL,
-    "order"       integer
+    generation_id bigint NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS poke_stage.version
