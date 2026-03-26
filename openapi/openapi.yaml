@@ -3,6 +3,28 @@ info:
     title: SoulLocker API
     version: 0.0.1
 paths:
+    /editions:
+        get:
+            tags:
+                - GameEdition
+            summary: Retrieve all available Pokémon editions
+            description: Retrieve all available Pokémon editions which the player can choose from to start a soullink run in
+            operationId: get-editions
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    $ref: '#/components/schemas/GameEditionDto'
+                default:
+                    description: Error
+                    content:
+                        application/problem+json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorModel'
     /lobby:
         post:
             tags:
@@ -119,6 +141,33 @@ components:
                     default: about:blank
                     examples:
                         - https://example.com/errors/example
+        GameEditionDto:
+            type: object
+            additionalProperties: false
+            properties:
+                generation:
+                    type: integer
+                    description: Game Edition Generation
+                    format: int64
+                    examples:
+                        - 3
+                    minimum: 0
+                id:
+                    type: string
+                    description: Game Edition ID
+                    format: string
+                    examples:
+                        - firered
+                name:
+                    type: string
+                    description: Game Edition Name
+                    format: string
+                    examples:
+                        - Firered
+            required:
+                - id
+                - name
+                - generation
         GetLobbyResponse:
             type: object
             additionalProperties: false
