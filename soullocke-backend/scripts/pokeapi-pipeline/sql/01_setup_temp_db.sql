@@ -1,3 +1,5 @@
+DROP DATABASE IF EXISTS poke_restore;
+
 DO
 $do$
     BEGIN
