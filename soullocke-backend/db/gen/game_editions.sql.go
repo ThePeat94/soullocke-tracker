@@ -7,54 +7,42 @@ package dbgen
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createGameEdition = `-- name: CreateGameEdition :one
-INSERT INTO game_editions (id, name)
-VALUES ($1, $2)
-RETURNING id, name, image_src, deleted_at, updated_at
+INSERT INTO game_editions (id, name, generation)
+VALUES ($1, $2, $3)
+ON CONFLICT (id) DO UPDATE SET updated_at = now()
+RETURNING id, name, generation
 `
 
 type CreateGameEditionParams struct {
-	ID   string
-	Name string
+	ID         string
+	Name       string
+	Generation int16
 }
 
 func (q *Queries) CreateGameEdition(ctx context.Context, arg CreateGameEditionParams) (GameEdition, error) {
-	row := q.db.QueryRow(ctx, createGameEdition, arg.ID, arg.Name)
+	row := q.db.QueryRow(ctx, createGameEdition, arg.ID, arg.Name, arg.Generation)
 	var i GameEdition
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.ImageSrc,
-		&i.DeletedAt,
-		&i.UpdatedAt,
-	)
+	err := row.Scan(&i.ID, &i.Name, &i.Generation)
 	return i, err
 }
 
 const deleteGameEdition = `-- name: DeleteGameEdition :one
-DELETE FROM game_editions WHERE id = $1
-RETURNING id, name, image_src, deleted_at, updated_at
+UPDATE game_editions SET deleted_at = now() WHERE id = $1
+RETURNING id, name, generation
 `
 
 func (q *Queries) DeleteGameEdition(ctx context.Context, id string) (GameEdition, error) {
 	row := q.db.QueryRow(ctx, deleteGameEdition, id)
 	var i GameEdition
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.ImageSrc,
-		&i.DeletedAt,
-		&i.UpdatedAt,
-	)
+	err := row.Scan(&i.ID, &i.Name, &i.Generation)
 	return i, err
 }
 
 const getGameEditions = `-- name: GetGameEditions :many
-SELECT id, name, image_src, deleted_at, updated_at FROM game_editions
+SELECT id, name, generation FROM game_editions
 `
 
 func (q *Queries) GetGameEditions(ctx context.Context) ([]GameEdition, error) {
@@ -66,13 +54,7 @@ func (q *Queries) GetGameEditions(ctx context.Context) ([]GameEdition, error) {
 	var items []GameEdition
 	for rows.Next() {
 		var i GameEdition
-		if err := rows.Scan(
-			&i.ID,
-			&i.Name,
-			&i.ImageSrc,
-			&i.DeletedAt,
-			&i.UpdatedAt,
-		); err != nil {
+		if err := rows.Scan(&i.ID, &i.Name, &i.Generation); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -81,18 +63,4 @@ func (q *Queries) GetGameEditions(ctx context.Context) ([]GameEdition, error) {
 		return nil, err
 	}
 	return items, nil
-}
-
-const updateImageSrc = `-- name: UpdateImageSrc :exec
-UPDATE game_editions SET image_src = $1 WHERE id = $2
-`
-
-type UpdateImageSrcParams struct {
-	Src pgtype.Text
-	ID  string
-}
-
-func (q *Queries) UpdateImageSrc(ctx context.Context, arg UpdateImageSrcParams) error {
-	_, err := q.db.Exec(ctx, updateImageSrc, arg.Src, arg.ID)
-	return err
 }

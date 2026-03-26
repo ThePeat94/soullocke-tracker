@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"soullocke-backend/config"
 	"soullocke-backend/db"
+	"soullocke-backend/domain/game_edition"
 	"soullocke-backend/domain/lobby"
 	"soullocke-backend/http"
 	"syscall"
@@ -44,7 +45,8 @@ func main() {
 	}
 
 	lr := lobby.NewRepository(database)
-	server := http.NewServer(appConfig.Server.Port, appConfig.Server.AllowedOrigins, lr)
+	ger := game_edition.NewRepository(database)
+	server := http.NewServer(appConfig.Server.Port, appConfig.Server.AllowedOrigins, lr, ger)
 	server.Setup()
 
 	if len(os.Args) > 1 && os.Args[1] == "export-openapi" {

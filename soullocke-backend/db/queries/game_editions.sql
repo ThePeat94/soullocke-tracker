@@ -1,14 +1,12 @@
 -- name: CreateGameEdition :one
-INSERT INTO game_editions (id, name)
-VALUES (sqlc.arg(id), sqlc.arg(name))
+INSERT INTO game_editions (id, name, generation)
+VALUES (sqlc.arg(id), sqlc.arg(name), sqlc.arg(generation))
+ON CONFLICT (id) DO UPDATE SET updated_at = now()
 RETURNING *;
 
 -- name: GetGameEditions :many
 SELECT * FROM game_editions;
 
--- name: UpdateImageSrc :exec
-UPDATE game_editions SET image_src = sqlc.arg(src) WHERE id = sqlc.arg(id);
-
 -- name: DeleteGameEdition :one
-DELETE FROM game_editions WHERE id = sqlc.arg(id)
+UPDATE game_editions SET deleted_at = now() WHERE id = sqlc.arg(id)
 RETURNING *;
