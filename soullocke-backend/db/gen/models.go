@@ -10,11 +10,9 @@ import (
 )
 
 type GameEdition struct {
-	ID        string
-	Name      string
-	ImageSrc  pgtype.Text
-	DeletedAt pgtype.Timestamptz
-	UpdatedAt pgtype.Timestamptz
+	ID         string
+	Name       string
+	Generation int16
 }
 
 type Lobby struct {
@@ -24,4 +22,5 @@ type Lobby struct {
 	GameEditionID pgtype.Text
 	CreatedAt     pgtype.Timestamptz
 	UpdatedAt     pgtype.Timestamptz
+	DeletedAt     pgtype.Timestamptz
 }
