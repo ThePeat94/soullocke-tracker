@@ -12,7 +12,7 @@
 	let lobbyNameValid = $state(false);
 	let lobbyPasswordValid = $state(false);
 
-	const { data = [] } = getEditionsQuery();
+	const { data } = getEditionsQuery();
 	const createLobbyMutation = getLobbyCreationMutation();
 
 	const handleCreateLobbyClick = (): void => {
@@ -59,7 +59,7 @@
 				/>
 				<Combobox
 					items={
-						data.map((edition) => ({
+						data?.map((edition) => ({
 							label: edition.name,
 							value: edition.id,
 							group: edition.generation ? `Generation ${edition.generation}` : undefined,
