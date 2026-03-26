@@ -3,27 +3,8 @@
 import { type MutationOptions, queryOptions } from '@tanstack/svelte-query';
 
 import { client } from '../client.gen';
-import { createLobby, getLobby, type Options } from '../sdk.gen';
-import type { CreateLobbyData, CreateLobbyError, CreateLobbyResponse, GetLobbyData, GetLobbyError, GetLobbyResponse2 } from '../types.gen';
-
-/**
- * Creates a new lobby
- *
- * Creates a new lobby for players to join and manage their soullink run
- */
-export const createLobbyMutation = (options?: Partial<Options<CreateLobbyData>>): MutationOptions<CreateLobbyResponse, CreateLobbyError, Options<CreateLobbyData>> => {
-    const mutationOptions: MutationOptions<CreateLobbyResponse, CreateLobbyError, Options<CreateLobbyData>> = {
-        mutationFn: async (fnOptions) => {
-            const { data } = await createLobby({
-                ...options,
-                ...fnOptions,
-                throwOnError: true
-            });
-            return data;
-        }
-    };
-    return mutationOptions;
-};
+import { createLobby, getEditions, getLobby, type Options } from '../sdk.gen';
+import type { CreateLobbyData, CreateLobbyError, CreateLobbyResponse, GetEditionsData, GetEditionsError, GetEditionsResponse, GetLobbyData, GetLobbyError, GetLobbyResponse2 } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -56,6 +37,45 @@ const createQueryKey = <TOptions extends Options>(id: string, options?: TOptions
         params.query = options.query;
     }
     return [params];
+};
+
+export const getEditionsQueryKey = (options?: Options<GetEditionsData>) => createQueryKey('getEditions', options);
+
+/**
+ * Retrieve all available Pokémon editions
+ *
+ * Retrieve all available Pokémon editions which the player can choose from to start a soullink run in
+ */
+export const getEditionsOptions = (options?: Options<GetEditionsData>) => queryOptions<GetEditionsResponse, GetEditionsError, GetEditionsResponse, ReturnType<typeof getEditionsQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await getEditions({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: getEditionsQueryKey(options)
+});
+
+/**
+ * Creates a new lobby
+ *
+ * Creates a new lobby for players to join and manage their soullink run
+ */
+export const createLobbyMutation = (options?: Partial<Options<CreateLobbyData>>): MutationOptions<CreateLobbyResponse, CreateLobbyError, Options<CreateLobbyData>> => {
+    const mutationOptions: MutationOptions<CreateLobbyResponse, CreateLobbyError, Options<CreateLobbyData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await createLobby({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
 };
 
 export const getLobbyQueryKey = (options: Options<GetLobbyData>) => createQueryKey('getLobby', options);

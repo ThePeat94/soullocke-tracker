@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateLobbyData, CreateLobbyErrors, CreateLobbyResponses, GetLobbyData, GetLobbyErrors, GetLobbyResponses } from './types.gen';
+import type { CreateLobbyData, CreateLobbyErrors, CreateLobbyResponses, GetEditionsData, GetEditionsErrors, GetEditionsResponses, GetLobbyData, GetLobbyErrors, GetLobbyResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -17,6 +17,13 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
      */
     meta?: Record<string, unknown>;
 };
+
+/**
+ * Retrieve all available Pokémon editions
+ *
+ * Retrieve all available Pokémon editions which the player can choose from to start a soullink run in
+ */
+export const getEditions = <ThrowOnError extends boolean = false>(options?: Options<GetEditionsData, ThrowOnError>) => (options?.client ?? client).get<GetEditionsResponses, GetEditionsErrors, ThrowOnError>({ url: '/editions', ...options });
 
 /**
  * Creates a new lobby
