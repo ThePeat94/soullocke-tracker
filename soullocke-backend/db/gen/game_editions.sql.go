@@ -9,26 +9,6 @@ import (
 	"context"
 )
 
-const createGameEdition = `-- name: CreateGameEdition :one
-INSERT INTO game_editions (id, name, generation)
-VALUES ($1, $2, $3)
-ON CONFLICT DO NOTHING
-RETURNING id, name, generation
-`
-
-type CreateGameEditionParams struct {
-	ID         string
-	Name       string
-	Generation int16
-}
-
-func (q *Queries) CreateGameEdition(ctx context.Context, arg CreateGameEditionParams) (GameEdition, error) {
-	row := q.db.QueryRow(ctx, createGameEdition, arg.ID, arg.Name, arg.Generation)
-	var i GameEdition
-	err := row.Scan(&i.ID, &i.Name, &i.Generation)
-	return i, err
-}
-
 const getGameEditions = `-- name: GetGameEditions :many
 SELECT id, name, generation FROM game_editions
 `

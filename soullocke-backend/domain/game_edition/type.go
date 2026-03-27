@@ -12,5 +12,4 @@ type GameEdition struct {
 
 type GameEditionRepository interface {
 	GetGameEditions(ctx context.Context) ([]*GameEdition, error)
-	CreateGameEdition(ctx context.Context, id string, name string, generation uint64) (*GameEdition, error)
 }

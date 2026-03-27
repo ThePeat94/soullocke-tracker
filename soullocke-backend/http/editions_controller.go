@@ -23,6 +23,12 @@ type GetGameEditionsOutput struct {
 	Body []GameEditionDto
 }
 
+func NewGameEditionsController(ger game_edition.GameEditionRepository) *GameEditionsController {
+	return &GameEditionsController{
+		ger: ger,
+	}
+}
+
 func (controller *GameEditionsController) RegisterRoutes(s *Server) {
 	huma.Register(s.api, huma.Operation{
 		OperationID:   "get-editions",

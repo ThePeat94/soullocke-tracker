@@ -43,38 +43,10 @@ func (r *Repository) GetGameEditions(ctx context.Context) ([]*GameEdition, error
 	return domainEditions, nil
 }
 
-func (r *Repository) CreateGameEdition(ctx context.Context, id string, name string, generation uint64) (*GameEdition, error) {
-	var domainEdition *GameEdition
-	err := r.Tx(ctx, func(ctx context.Context) error {
-		params := toCreateGameEditionParams(id, name, generation)
-		q := r.QueriesFromContext(ctx)
-		edition, err := q.CreateGameEdition(ctx, params)
-		if err != nil {
-			return err
-		}
-		domainEdition = toDomainGameEdition(edition)
-		return nil
-	})
-
-	if err != nil {
-		return nil, fmt.Errorf("game edition: creating game edition: %w", err)
-	}
-
-	return domainEdition, nil
-}
-
 func toDomainGameEdition(edition dbgen.GameEdition) *GameEdition {
 	return &GameEdition{
 		ID:         edition.ID,
 		Name:       edition.Name,
 		Generation: uint64(edition.Generation),
-	}
-}
-
-func toCreateGameEditionParams(id string, name string, generation uint64) dbgen.CreateGameEditionParams {
-	return dbgen.CreateGameEditionParams{
-		ID:         id,
-		Name:       name,
-		Generation: int16(generation),
 	}
 }
