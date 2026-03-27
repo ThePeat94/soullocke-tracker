@@ -7,13 +7,18 @@ set +a
 REPO_BASE_URL="https://raw.githubusercontent.com/PokeAPI/pokeapi"
 REF_COMMIT_SHA="8711df8f5216c2ea5698a779bedd4ef7e2166059"
 
+# format: "table_name:col1,col2,col3"
+STAGE_TABLES=(
+  "version_groups:id,identifier,generation_id,\"order\""
+  "versions:id,version_group_id,identifier"
+)
 
 get_file_url() {
   echo "$REPO_BASE_URL/$REF_COMMIT_SHA/data/v2/csv/$1.csv"
 }
 
 log() {
-  printf '\n[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$1"
+  printf '[%s] %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$1"
 }
 
 app_psql() {
@@ -30,8 +35,15 @@ app_psql() {
 download_latest_dumps() {
   log "downloading csv files from github repo"
   mkdir -p ./tmp
-  curl -L -o ./tmp/versions.csv "$(get_file_url "versions")"
-  curl -L -o ./tmp/version_groups.csv "$(get_file_url "version_groups")"
+   for entry in "${STAGE_TABLES[@]}"; do
+    FILE=${entry%%:*}
+    log "downloading $FILE"
+    FILE_URL=$(get_file_url "$FILE")
+    if ! curl --fail -L -o "./tmp/$FILE.csv" "$FILE_URL"; then
+      log "ERROR: failed to download $FILE from $FILE_URL"
+      exit 1
+    fi
+  done
 }
 
 cleanup() {
@@ -46,11 +58,12 @@ copy_from_temp_to_stage() {
   log "setting up stage"
   app_psql -f ./sql/01_setup_stage.sql
 
-  log "copying version groups"
-  app_psql -c "\COPY poke_stage.version_group (id, identifier, generation_id, \"order\") FROM './tmp/version_groups.csv' WITH (FORMAT csv, HEADER true)"
-
-  log "copying versions"
-  app_psql -c "\COPY poke_stage.version (id, version_group_id, identifier) FROM './tmp/versions.csv' WITH (FORMAT csv, HEADER true)"
+  for entry in "${STAGE_TABLES[@]}"; do
+    table="${entry%%:*}"
+    columns="${entry#*:}"
+    log "copying $table into stage"
+    app_psql -c "\COPY poke_stage.$table ($columns) FROM './tmp/${table}.csv' WITH (FORMAT csv, HEADER true)"
+  done
 
   log "transforming data"
   app_psql -f ./sql/02_transform_into_app.sql
