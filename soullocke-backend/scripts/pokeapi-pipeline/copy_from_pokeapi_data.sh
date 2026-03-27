@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
 set -a
 source .env
 set +a
 
 REPO_BASE_URL="https://raw.githubusercontent.com/PokeAPI/pokeapi"
+# PokeAPI repo commit to pull CSV data from — update this when new Pokemon generations release
 REF_COMMIT_SHA="8711df8f5216c2ea5698a779bedd4ef7e2166059"
 
 # format: "table_name:col1,col2,col3"
