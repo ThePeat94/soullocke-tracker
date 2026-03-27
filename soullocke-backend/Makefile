@@ -15,3 +15,6 @@ run: build
 
 clean:
 	rm -rf dist
+
+build-db:
+	./scripts/pokeapi-pipeline/copy_from_pokeapi_data.sh

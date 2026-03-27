@@ -12,7 +12,7 @@ import (
 const createGameEdition = `-- name: CreateGameEdition :one
 INSERT INTO game_editions (id, name, generation)
 VALUES ($1, $2, $3)
-ON CONFLICT (id) DO UPDATE SET updated_at = now()
+ON CONFLICT DO NOTHING
 RETURNING id, name, generation
 `
 
@@ -24,18 +24,6 @@ type CreateGameEditionParams struct {
 
 func (q *Queries) CreateGameEdition(ctx context.Context, arg CreateGameEditionParams) (GameEdition, error) {
 	row := q.db.QueryRow(ctx, createGameEdition, arg.ID, arg.Name, arg.Generation)
-	var i GameEdition
-	err := row.Scan(&i.ID, &i.Name, &i.Generation)
-	return i, err
-}
-
-const deleteGameEdition = `-- name: DeleteGameEdition :one
-UPDATE game_editions SET deleted_at = now() WHERE id = $1
-RETURNING id, name, generation
-`
-
-func (q *Queries) DeleteGameEdition(ctx context.Context, id string) (GameEdition, error) {
-	row := q.db.QueryRow(ctx, deleteGameEdition, id)
 	var i GameEdition
 	err := row.Scan(&i.ID, &i.Name, &i.Generation)
 	return i, err
