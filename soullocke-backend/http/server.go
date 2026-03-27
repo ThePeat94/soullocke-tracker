@@ -29,16 +29,12 @@ func NewServer(port uint16, allowedOrigins []string, lr lobby.LobbyRepository, g
 	mux := http.NewServeMux()
 	api := humago.New(mux, huma.DefaultConfig("SoulLocker API", "0.0.1"))
 	return &Server{
-		port:           port,
-		mux:            mux,
-		api:            api,
-		allowedOrigins: allowedOrigins,
-		lobbyController: &LobbyController{
-			lr: lr,
-		},
-		gameEditionController: &GameEditionsController{
-			ger: ger,
-		},
+		port:                  port,
+		mux:                   mux,
+		api:                   api,
+		allowedOrigins:        allowedOrigins,
+		lobbyController:       NewLobbyController(lr),
+		gameEditionController: NewGameEditionsController(ger),
 	}
 }
 
