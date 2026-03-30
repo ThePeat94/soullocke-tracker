@@ -5,7 +5,7 @@ import (
 )
 
 type GameEdition struct {
-	ID         string
+	ID         uint16
 	Name       string
 	Generation uint64
 }

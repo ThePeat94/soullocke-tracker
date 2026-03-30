@@ -10,16 +10,30 @@ import (
 )
 
 type GameEdition struct {
-	ID         string
-	Name       string
-	Generation int16
+	ID           int32
+	CodeName     string
+	Generation   int16
+	FallbackName pgtype.Text
+}
+
+type GameEditionName struct {
+	LanguageID    int32
+	GameEditionID int32
+	Name          string
+}
+
+type Language struct {
+	ID      int32
+	Iso639  string
+	Iso3166 string
+	Name    string
 }
 
 type Lobby struct {
 	ID            uuid.UUID
 	Name          string
 	Password      string
-	GameEditionID pgtype.Text
+	GameEditionID int32
 	CreatedAt     pgtype.Timestamptz
 	UpdatedAt     pgtype.Timestamptz
 	DeletedAt     pgtype.Timestamptz

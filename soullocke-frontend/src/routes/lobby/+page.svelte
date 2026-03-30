@@ -23,7 +23,7 @@
 			body: {
 				name: lobbyName.trim(),
 				password: lobbyPassword,
-				gameEditionId: gameEdition,
+				gameEditionId: Number(gameEdition),
 			}
 		});
 	};
@@ -61,7 +61,7 @@
 					items={
 						(editionsQuery.data ?? []).map((edition) => ({
 							label: edition.name,
-							value: edition.id,
+							value: edition.id.toString(),
 							group: edition.generation ? `Generation ${edition.generation}` : undefined,
 						}))
 					}

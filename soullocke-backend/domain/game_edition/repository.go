@@ -10,10 +10,6 @@ import (
 	dbgen "soullocke-backend/db/gen"
 )
 
-var (
-	ErrNotFound = errors.New("game edition: not found")
-)
-
 type Repository struct {
 	*db.BaseRepository
 }
@@ -45,8 +41,8 @@ func (r *Repository) GetGameEditions(ctx context.Context) ([]*GameEdition, error
 
 func toDomainGameEdition(edition dbgen.GameEdition) *GameEdition {
 	return &GameEdition{
-		ID:         edition.ID,
-		Name:       edition.Name,
+		ID:         uint16(edition.ID),
+		Name:       edition.CodeName,
 		Generation: uint64(edition.Generation),
 	}
 }

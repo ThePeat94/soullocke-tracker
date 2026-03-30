@@ -19,7 +19,7 @@ type LobbyController struct {
 type LobbyCreationRequest struct {
 	Name          string `json:"name" minLength:"10" maxLength:"255" example:"Weekend Lobby"`
 	Password      string `json:"password" minLength:"8" maxLength:"255" example:"f00b4r1234"`
-	GameEditionId string `json:"gameEditionId" minLength:"1" maxLength:"255" example:"firered" doc:"The game edition id of the pokemon version"`
+	GameEditionId uint16 `json:"gameEditionId" example:"8" doc:"The game edition id of the pokemon version"`
 }
 
 type LobbyCreationResponse struct {
@@ -29,7 +29,7 @@ type LobbyCreationResponse struct {
 type GetLobbyResponse struct {
 	ID            string `json:"id"`
 	Name          string `json:"name"`
-	GameEditionId string `json:"gameEditionId"`
+	GameEditionId uint16 `json:"gameEditionId"`
 }
 
 type CreateLobbyInput struct {
@@ -106,7 +106,6 @@ func (lc *LobbyController) RegisterLobbyRoutes(s *Server) {
 
 func (b *LobbyCreationRequest) Resolve(ctx huma.Context) []error {
 	b.Name = strings.TrimSpace(b.Name)
-	b.GameEditionId = strings.TrimSpace(b.GameEditionId)
 	b.Password = strings.TrimSpace(b.Password)
 
 	var errs []error
@@ -117,7 +116,7 @@ func (b *LobbyCreationRequest) Resolve(ctx huma.Context) []error {
 	if n := len(b.Password); n < 8 || n > 255 {
 		errs = append(errs, fmt.Errorf("password length must be between 8 and 255"))
 	}
-	if n := len(b.GameEditionId); n == 0 {
+	if b.GameEditionId <= 0 {
 		errs = append(errs, fmt.Errorf("a game edition must be set"))
 	}
 

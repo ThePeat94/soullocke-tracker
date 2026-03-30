@@ -58,7 +58,7 @@ export type GameEditionDto = {
     /**
      * Game Edition ID
      */
-    id: string;
+    id: number;
     /**
      * Game Edition Name
      */
@@ -70,7 +70,7 @@ export type GetLobbyResponse = {
      * A URL to the JSON Schema for this object.
      */
     readonly $schema?: string;
-    gameEditionId: string;
+    gameEditionId: number;
     id: string;
     name: string;
 };
@@ -83,7 +83,7 @@ export type LobbyCreationRequest = {
     /**
      * The game edition id of the pokemon version
      */
-    gameEditionId: string;
+    gameEditionId: number;
     name: string;
     password: string;
 };
@@ -127,7 +127,7 @@ export type ErrorModelWritable = {
 };
 
 export type GetLobbyResponseWritable = {
-    gameEditionId: string;
+    gameEditionId: number;
     id: string;
     name: string;
 };
@@ -136,7 +136,7 @@ export type LobbyCreationRequestWritable = {
     /**
      * The game edition id of the pokemon version
      */
-    gameEditionId: string;
+    gameEditionId: number;
     name: string;
     password: string;
 };

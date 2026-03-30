@@ -1,9 +1,9 @@
-<script lang="ts" generics="T extends unknown">
-	import { Combobox, Portal, type ComboboxRootProps, useListCollection } from '@skeletonlabs/skeleton-svelte';
+<script lang="ts">
+	import { Combobox, type ComboboxRootProps, Portal, useListCollection } from '@skeletonlabs/skeleton-svelte';
 
 	type ComboboxItem = {
 		label: string;
-		value: T;
+		value: string;
 		group?: string;
 	};
 

@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+# This script describes an ETL workflow to fill the database with relevant data
+
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -16,6 +19,8 @@ REF_COMMIT_SHA="8711df8f5216c2ea5698a779bedd4ef7e2166059"
 STAGE_TABLES=(
   "version_groups:id,identifier,generation_id,\"order\""
   "versions:id,version_group_id,identifier"
+  "languages:id,iso639,iso3166,identifier,official,\"order\""
+  "version_names:version_id,local_language_id,name"
 )
 
 get_file_url() {

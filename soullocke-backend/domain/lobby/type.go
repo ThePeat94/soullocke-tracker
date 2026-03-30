@@ -5,7 +5,7 @@ import "context"
 type Lobby struct {
 	ID            string
 	Name          string
-	GameEditionID string
+	GameEditionID uint16
 }
 
 type LobbyWithCredentials struct {
@@ -14,6 +14,6 @@ type LobbyWithCredentials struct {
 }
 
 type LobbyRepository interface {
-	CreateLobby(ctx context.Context, name string, password string, gameEditionID string) (*Lobby, error)
+	CreateLobby(ctx context.Context, name string, password string, gameEditionID uint16) (*Lobby, error)
 	GetLobby(ctx context.Context, id string) (*Lobby, error)
 }
