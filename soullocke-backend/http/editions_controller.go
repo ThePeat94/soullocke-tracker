@@ -14,7 +14,7 @@ type GameEditionsController struct {
 }
 
 type GameEditionDto struct {
-	ID         string `json:"id" example:"firered" doc:"Game Edition ID" format:"string"`
+	ID         uint16 `json:"id" example:"1" doc:"Game Edition ID"`
 	Name       string `json:"name" example:"Firered" doc:"Game Edition Name" format:"string"`
 	Generation uint64 `json:"generation" example:"3" doc:"Game Edition Generation"`
 }

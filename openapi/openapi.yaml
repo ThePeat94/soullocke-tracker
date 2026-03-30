@@ -153,11 +153,12 @@ components:
                         - 3
                     minimum: 0
                 id:
-                    type: string
+                    type: integer
                     description: Game Edition ID
-                    format: string
+                    format: int32
                     examples:
-                        - firered
+                        - 1
+                    minimum: 0
                 name:
                     type: string
                     description: Game Edition Name
@@ -180,7 +181,9 @@ components:
                         - https://example.com/schemas/GetLobbyResponse.json
                     readOnly: true
                 gameEditionId:
-                    type: string
+                    type: integer
+                    format: int32
+                    minimum: 0
                 id:
                     type: string
                 name:
@@ -201,12 +204,12 @@ components:
                         - https://example.com/schemas/LobbyCreationRequest.json
                     readOnly: true
                 gameEditionId:
-                    type: string
+                    type: integer
                     description: The game edition id of the pokemon version
+                    format: int32
                     examples:
-                        - firered
-                    minLength: 1
-                    maxLength: 255
+                        - 8
+                    minimum: 0
                 name:
                     type: string
                     examples:

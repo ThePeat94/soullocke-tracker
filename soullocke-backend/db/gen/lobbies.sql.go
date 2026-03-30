@@ -9,7 +9,6 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createLobby = `-- name: CreateLobby :one
@@ -21,13 +20,13 @@ RETURNING id, name, game_edition_id
 type CreateLobbyParams struct {
 	Name          string
 	Password      string
-	GameEditionID pgtype.Text
+	GameEditionID int32
 }
 
 type CreateLobbyRow struct {
 	ID            uuid.UUID
 	Name          string
-	GameEditionID pgtype.Text
+	GameEditionID int32
 }
 
 // @type LobbyRow
@@ -45,7 +44,7 @@ SELECT id, name, game_edition_id FROM lobbies WHERE id = $1
 type GetLobbyRow struct {
 	ID            uuid.UUID
 	Name          string
-	GameEditionID pgtype.Text
+	GameEditionID int32
 }
 
 // @type LobbyRow
