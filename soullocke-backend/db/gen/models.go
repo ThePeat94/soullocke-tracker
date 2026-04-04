@@ -17,8 +17,8 @@ type GameEdition struct {
 }
 
 type GameEditionName struct {
-	LanguageID    int32
-	GameEditionID int32
+	LanguageID    uint16
+	GameEditionID uint16
 	Name          string
 }
 

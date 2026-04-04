@@ -13,3 +13,7 @@ sql:
             go_type:
               import: "github.com/google/uuid"
               type: "UUID"
+          - column: "game_edition_names.language_id"
+            go_type: "uint16"
+          - column: "game_edition_names.game_edition_id"
+            go_type: "uint16"
