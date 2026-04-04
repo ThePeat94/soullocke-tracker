@@ -8,8 +8,10 @@ import (
 	"soullocke-backend/config"
 	"soullocke-backend/db"
 	"soullocke-backend/domain/game_edition"
+	"soullocke-backend/domain/language"
 	"soullocke-backend/domain/lobby"
 	"soullocke-backend/http"
+	"strings"
 	"syscall"
 
 	"golang.org/x/sync/errgroup"
@@ -23,6 +25,11 @@ func main() {
 	appConfig, err := config.LoadConfig("config.yml")
 	if err != nil {
 		slog.Error("Failed to load config", "error", err)
+		return
+	}
+
+	if len(strings.TrimSpace(appConfig.Localization.DefaultLocale)) == 0 {
+		slog.Error("Default locale not specified")
 		return
 	}
 
@@ -44,9 +51,28 @@ func main() {
 		slog.Info("successfully migrated database")
 	}
 
+	langR := language.NewRepository(database)
+	defaultLanguage, err := langR.GetLanguageByName(ctx, appConfig.Localization.DefaultLocale)
+	if err != nil {
+		slog.Error("Failed to get default language", "error", err)
+		return
+	}
+
+	var supportedLocales []language.Language
+	for _, locale := range appConfig.Localization.SupportedLocales {
+		lang, err := langR.GetLanguageByName(ctx, locale)
+		if err != nil {
+			slog.Warn("Failed to get supported language", "error", err, "locale", locale)
+			return
+		}
+		supportedLocales = append(supportedLocales, *lang)
+	}
+
+	allLang := append(supportedLocales, *defaultLanguage)
+
 	lr := lobby.NewRepository(database)
 	ger := game_edition.NewRepository(database)
-	server := http.NewServer(appConfig.Server.Port, appConfig.Server.AllowedOrigins, lr, ger)
+	server := http.NewServer(appConfig.Server.Port, appConfig.Server.AllowedOrigins, lr, ger, allLang, langR)
 	server.Setup()
 
 	if len(os.Args) > 1 && os.Args[1] == "export-openapi" {

@@ -145,6 +145,11 @@ components:
             type: object
             additionalProperties: false
             properties:
+                fallbackName:
+                    type: string
+                    description: Fallback Name (Code Name) for the Game Edition
+                    examples:
+                        - firered
                 generation:
                     type: integer
                     description: Game Edition Generation
@@ -159,16 +164,16 @@ components:
                     examples:
                         - 1
                     minimum: 0
-                name:
-                    type: string
-                    description: Game Edition Name
-                    format: string
-                    examples:
-                        - Firered
+                names:
+                    type: array
+                    description: Game Edition Names
+                    items:
+                        $ref: '#/components/schemas/LocalizedName'
             required:
                 - id
-                - name
                 - generation
+                - fallbackName
+                - names
         GetLobbyResponse:
             type: object
             additionalProperties: false
@@ -244,3 +249,18 @@ components:
                         - 73beb67c-70c5-4c95-b99e-73e3c076f82f
             required:
                 - lobbyId
+        LocalizedName:
+            type: object
+            additionalProperties: false
+            properties:
+                lang:
+                    type: string
+                    examples:
+                        - de
+                name:
+                    type: string
+                    examples:
+                        - Feuerrot
+            required:
+                - lang
+                - name

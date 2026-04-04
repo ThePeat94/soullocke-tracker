@@ -9,8 +9,9 @@ import (
 )
 
 type Config struct {
-	Database Database `koanf:"database"`
-	Server   Server   `koanf:"server"`
+	Database     Database     `koanf:"database"`
+	Server       Server       `koanf:"server"`
+	Localization Localization `koanf:"localization"`
 }
 
 type Database struct {
@@ -24,6 +25,11 @@ type Database struct {
 type Server struct {
 	Port           uint16   `koanf:"port"`
 	AllowedOrigins []string `koanf:"allowed_origins"`
+}
+
+type Localization struct {
+	DefaultLocale    string   `koanf:"default_locale"`
+	SupportedLocales []string `koanf:"supported_locales"`
 }
 
 func (dbConfig *Database) DSN() string {

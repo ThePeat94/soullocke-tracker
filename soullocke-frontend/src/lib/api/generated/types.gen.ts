@@ -52,6 +52,10 @@ export type ErrorModel = {
 
 export type GameEditionDto = {
     /**
+     * Fallback Name (Code Name) for the Game Edition
+     */
+    fallbackName: string;
+    /**
      * Game Edition Generation
      */
     generation: number;
@@ -60,9 +64,9 @@ export type GameEditionDto = {
      */
     id: number;
     /**
-     * Game Edition Name
+     * Game Edition Names
      */
-    name: string;
+    names: Array<LocalizedName>;
 };
 
 export type GetLobbyResponse = {
@@ -97,6 +101,11 @@ export type LobbyCreationResponse = {
      * Lobby ID as a UUID
      */
     lobbyId: string;
+};
+
+export type LocalizedName = {
+    lang: string;
+    name: string;
 };
 
 export type ErrorModelWritable = {
