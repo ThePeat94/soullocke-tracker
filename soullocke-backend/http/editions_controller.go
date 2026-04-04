@@ -5,27 +5,33 @@ import (
 	"log/slog"
 	"net/http"
 	"soullocke-backend/domain/game_edition"
+	"soullocke-backend/domain/language"
 
 	"github.com/danielgtaylor/huma/v2"
 )
 
 type GameEditionsController struct {
-	ger game_edition.GameEditionRepository
+	ger                game_edition.GameEditionRepository
+	lr                 language.LanguageRepository
+	supportedLanguages []language.Language
 }
 
 type GameEditionDto struct {
-	ID         uint16 `json:"id" example:"1" doc:"Game Edition ID"`
-	Name       string `json:"name" example:"Firered" doc:"Game Edition Name" format:"string"`
-	Generation uint64 `json:"generation" example:"3" doc:"Game Edition Generation"`
+	ID           uint16                    `json:"id" example:"1" doc:"Game Edition ID"`
+	Generation   uint64                    `json:"generation" example:"3" doc:"Game Edition Generation"`
+	FallbackName string                    `json:"fallbackName" example:"firered" doc:"Fallback Name (Code Name) for the Game Edition"`
+	Names        []*language.LocalizedName `json:"names" doc:"Game Edition Names"`
 }
 
 type GetGameEditionsOutput struct {
 	Body []GameEditionDto
 }
 
-func NewGameEditionsController(ger game_edition.GameEditionRepository) *GameEditionsController {
+func NewGameEditionsController(ger game_edition.GameEditionRepository, supportedLanguages []language.Language, lr language.LanguageRepository) *GameEditionsController {
 	return &GameEditionsController{
-		ger: ger,
+		ger:                ger,
+		supportedLanguages: supportedLanguages,
+		lr:                 lr,
 	}
 }
 
@@ -48,10 +54,15 @@ func (controller *GameEditionsController) RegisterRoutes(s *Server) {
 		output := &GetGameEditionsOutput{}
 		outputEditions := make([]GameEditionDto, 0, len(gameEditions))
 		for _, gameEdition := range gameEditions {
+			editionNames, err := controller.lr.GetNamesForGameEdition(ctx, gameEdition.ID, language.GetLanguageIds(controller.supportedLanguages))
+			if err != nil {
+				slog.Warn("error retrieving game edition names", "error", err)
+			}
 			outputEditions = append(outputEditions, GameEditionDto{
-				ID:         gameEdition.ID,
-				Name:       gameEdition.Name,
-				Generation: gameEdition.Generation,
+				ID:           gameEdition.ID,
+				Generation:   gameEdition.Generation,
+				FallbackName: gameEdition.Name,
+				Names:        editionNames,
 			})
 		}
 		output.Body = outputEditions

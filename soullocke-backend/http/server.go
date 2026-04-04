@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"soullocke-backend/domain/game_edition"
+	"soullocke-backend/domain/language"
 	"soullocke-backend/domain/lobby"
 	"time"
 
@@ -23,9 +24,10 @@ type Server struct {
 	api                   huma.API
 	lobbyController       *LobbyController
 	gameEditionController *GameEditionsController
+	supportedLanguages    []language.Language
 }
 
-func NewServer(port uint16, allowedOrigins []string, lr lobby.LobbyRepository, ger game_edition.GameEditionRepository) *Server {
+func NewServer(port uint16, allowedOrigins []string, lr lobby.LobbyRepository, ger game_edition.GameEditionRepository, supportedLanguages []language.Language, langR language.LanguageRepository) *Server {
 	mux := http.NewServeMux()
 	api := humago.New(mux, huma.DefaultConfig("SoulLocker API", "0.0.1"))
 	return &Server{
@@ -34,7 +36,7 @@ func NewServer(port uint16, allowedOrigins []string, lr lobby.LobbyRepository, g
 		api:                   api,
 		allowedOrigins:        allowedOrigins,
 		lobbyController:       NewLobbyController(lr),
-		gameEditionController: NewGameEditionsController(ger),
+		gameEditionController: NewGameEditionsController(ger, supportedLanguages, langR),
 	}
 }
 

@@ -8,4 +8,9 @@ database:
 server:
   port: 1337
   allowed_origins:
-    - "http://localhost:5173"
+    - http://localhost:5173
+
+localization:
+    default_locale: en
+    supported_locales:
+      - de
