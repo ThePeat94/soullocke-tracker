@@ -60,15 +60,20 @@ func main() {
 
 	var supportedLocales []language.Language
 	for _, locale := range appConfig.Localization.SupportedLocales {
+		if locale == appConfig.Localization.DefaultLocale {
+			continue
+		}
 		lang, err := langR.GetLanguageByName(ctx, locale)
 		if err != nil {
 			slog.Warn("Failed to get supported language", "error", err, "locale", locale)
-			return
+			continue
 		}
 		supportedLocales = append(supportedLocales, *lang)
 	}
 
-	allLang := append(supportedLocales, *defaultLanguage)
+	allLang := make([]language.Language, 0, len(supportedLocales)+1)
+	allLang = append(allLang, supportedLocales...)
+	allLang = append(allLang, *defaultLanguage)
 
 	lr := lobby.NewRepository(database)
 	ger := game_edition.NewRepository(database)

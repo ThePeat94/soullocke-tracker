@@ -53,16 +53,20 @@ func (controller *GameEditionsController) RegisterRoutes(s *Server) {
 
 		output := &GetGameEditionsOutput{}
 		outputEditions := make([]GameEditionDto, 0, len(gameEditions))
+		editionNames, err := controller.lr.GetNamesForGameEditions(ctx, language.GetLanguageIds(controller.supportedLanguages))
+		if err != nil || editionNames == nil {
+			slog.Warn("error retrieving game edition names", "error", err)
+		}
 		for _, gameEdition := range gameEditions {
-			editionNames, err := controller.lr.GetNamesForGameEdition(ctx, gameEdition.ID, language.GetLanguageIds(controller.supportedLanguages))
-			if err != nil {
-				slog.Warn("error retrieving game edition names", "error", err)
+			genNames := editionNames[gameEdition.ID]
+			if genNames == nil {
+				genNames = []*language.LocalizedName{}
 			}
 			outputEditions = append(outputEditions, GameEditionDto{
 				ID:           gameEdition.ID,
 				Generation:   gameEdition.Generation,
 				FallbackName: gameEdition.Name,
-				Names:        editionNames,
+				Names:        genNames,
 			})
 		}
 		output.Body = outputEditions
