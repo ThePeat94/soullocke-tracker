@@ -28,34 +28,29 @@ func (q *Queries) FindLanguageByName(ctx context.Context, name string) (FindLang
 	return i, err
 }
 
-const getLocalizedNamesForGameEdition = `-- name: GetLocalizedNamesForGameEdition :many
-SELECT l.name as language_name, gen.name as edition_name
+const getLocalizedNamesForGameEditions = `-- name: GetLocalizedNamesForGameEditions :many
+SELECT gen.game_edition_id, l.name as language_name, gen.name as edition_name
 FROM game_edition_names gen
-INNER JOIN public.languages l on gen.language_id = l.id
-WHERE gen.game_edition_id = $1
-  AND gen.language_id = ANY ($2::SMALLINT[])
+         INNER JOIN languages l ON gen.language_id = l.id
+WHERE gen.language_id = ANY($1::SMALLINT[])
 `
 
-type GetLocalizedNamesForGameEditionParams struct {
+type GetLocalizedNamesForGameEditionsRow struct {
 	GameEditionID uint16
-	LanguageIds   []int16
+	LanguageName  string
+	EditionName   string
 }
 
-type GetLocalizedNamesForGameEditionRow struct {
-	LanguageName string
-	EditionName  string
-}
-
-func (q *Queries) GetLocalizedNamesForGameEdition(ctx context.Context, arg GetLocalizedNamesForGameEditionParams) ([]GetLocalizedNamesForGameEditionRow, error) {
-	rows, err := q.db.Query(ctx, getLocalizedNamesForGameEdition, arg.GameEditionID, arg.LanguageIds)
+func (q *Queries) GetLocalizedNamesForGameEditions(ctx context.Context, languageIds []int16) ([]GetLocalizedNamesForGameEditionsRow, error) {
+	rows, err := q.db.Query(ctx, getLocalizedNamesForGameEditions, languageIds)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetLocalizedNamesForGameEditionRow
+	var items []GetLocalizedNamesForGameEditionsRow
 	for rows.Next() {
-		var i GetLocalizedNamesForGameEditionRow
-		if err := rows.Scan(&i.LanguageName, &i.EditionName); err != nil {
+		var i GetLocalizedNamesForGameEditionsRow
+		if err := rows.Scan(&i.GameEditionID, &i.LanguageName, &i.EditionName); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

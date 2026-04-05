@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"soullocke-backend/db"
-	dbgen "soullocke-backend/db/gen"
 )
 
 var (
@@ -39,32 +38,25 @@ func (r *Repository) GetLanguageByName(ctx context.Context, name string) (*Langu
 	}, nil
 }
 
-func (r *Repository) GetNamesForGameEdition(ctx context.Context, gameEditionID uint16, langIds []uint16) ([]*LocalizedName, error) {
+func (r *Repository) GetNamesForGameEditions(ctx context.Context, langIds []uint16) (map[uint16][]*LocalizedName, error) {
 	q := r.QueriesFromContext(ctx)
 	int16Ids := make([]int16, len(langIds))
 	for i, id := range langIds {
 		int16Ids[i] = int16(id)
 	}
-	names, err := q.GetLocalizedNamesForGameEdition(ctx, dbgen.GetLocalizedNamesForGameEditionParams{
-		GameEditionID: gameEditionID,
-		LanguageIds:   int16Ids,
-	})
-
+	rows, err := q.GetLocalizedNamesForGameEditions(ctx, int16Ids)
 	if err != nil {
 		return nil, fmt.Errorf("language: failed to get localized names: %w", err)
 	}
 
-	localizedNames := make([]*LocalizedName, 0, len(names))
-	for _, name := range names {
-		localizedNames = append(localizedNames, toGameEditionLocalizedNames(name))
+	grouped := make(map[uint16][]*LocalizedName)
+
+	for _, row := range rows {
+		grouped[row.GameEditionID] = append(grouped[row.GameEditionID], &LocalizedName{
+			Name: row.EditionName,
+			Lang: row.LanguageName,
+		})
 	}
 
-	return localizedNames, nil
-}
-
-func toGameEditionLocalizedNames(name dbgen.GetLocalizedNamesForGameEditionRow) *LocalizedName {
-	return &LocalizedName{
-		Name: name.EditionName,
-		Lang: name.LanguageName,
-	}
+	return grouped, nil
 }

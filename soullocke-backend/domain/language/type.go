@@ -15,5 +15,5 @@ type LocalizedName struct {
 
 type LanguageRepository interface {
 	GetLanguageByName(ctx context.Context, name string) (*Language, error)
-	GetNamesForGameEdition(ctx context.Context, gameEditionID uint16, langIds []uint16) ([]*LocalizedName, error)
+	GetNamesForGameEditions(ctx context.Context, langIds []uint16) (map[uint16][]*LocalizedName, error)
 }

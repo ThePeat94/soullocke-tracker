@@ -24,7 +24,6 @@ type Server struct {
 	api                   huma.API
 	lobbyController       *LobbyController
 	gameEditionController *GameEditionsController
-	supportedLanguages    []language.Language
 }
 
 func NewServer(port uint16, allowedOrigins []string, lr lobby.LobbyRepository, ger game_edition.GameEditionRepository, supportedLanguages []language.Language, langR language.LanguageRepository) *Server {
