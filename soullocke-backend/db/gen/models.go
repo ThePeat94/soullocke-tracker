@@ -10,10 +10,9 @@ import (
 )
 
 type GameEdition struct {
-	ID           int32
-	CodeName     string
-	Generation   int16
-	FallbackName pgtype.Text
+	ID         int32
+	CodeName   string
+	Generation int16
 }
 
 type GameEditionName struct {

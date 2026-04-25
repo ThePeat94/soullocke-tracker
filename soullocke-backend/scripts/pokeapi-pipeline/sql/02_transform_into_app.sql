@@ -12,8 +12,8 @@ $$
         FROM poke_stage.versions;
 
         WITH inserted AS (
-            INSERT INTO game_editions (id, code_name, generation, fallback_name)
-                SELECT v.id, v.identifier, vg.generation_id, initcap(replace(v.identifier, '-', ' '))
+            INSERT INTO game_editions (id, code_name, generation)
+                SELECT v.id, v.identifier, vg.generation_id
                 FROM poke_stage.versions v
                          JOIN poke_stage.version_groups vg ON vg.id = v.version_group_id
                 ON CONFLICT DO NOTHING
