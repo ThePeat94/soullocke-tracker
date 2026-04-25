@@ -60,7 +60,7 @@
 				<Combobox
 					items={
 						(editionsQuery.data ?? []).map((edition) => ({
-							label: edition.names.find((name) => name.lang === 'en')?.name ?? edition.fallbackName,
+							label: edition.names.find((name) => name.lang === 'en')?.name ?? `Edition ${edition.id}`,
 							value: edition.id.toString(),
 							group: edition.generation ? `Generation ${edition.generation}` : undefined,
 						}))

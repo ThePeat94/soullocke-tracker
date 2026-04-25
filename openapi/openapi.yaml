@@ -145,11 +145,6 @@ components:
             type: object
             additionalProperties: false
             properties:
-                fallbackName:
-                    type: string
-                    description: Fallback Name (Code Name) for the Game Edition
-                    examples:
-                        - firered
                 generation:
                     type: integer
                     description: Game Edition Generation
@@ -172,7 +167,6 @@ components:
             required:
                 - id
                 - generation
-                - fallbackName
                 - names
         GetLobbyResponse:
             type: object
@@ -214,7 +208,7 @@ components:
                     format: int32
                     examples:
                         - 8
-                    minimum: 0
+                    minimum: 1
                 name:
                     type: string
                     examples:
