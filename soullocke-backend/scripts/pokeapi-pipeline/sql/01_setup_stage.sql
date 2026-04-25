@@ -18,7 +18,7 @@ CREATE TABLE poke_stage.versions
 
 CREATE TABLE poke_stage.languages
 (
-    id         SERIAL PRIMARY KEY,
+    id         BIGINT PRIMARY KEY,
     iso639     VARCHAR(10)  NOT NULL, -- language code
     iso3166    VARCHAR(2)   NOT NULL, -- country code
     identifier varchar(200) NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE poke_stage.languages
 
 CREATE TABLE poke_stage.version_names
 (
-    version_id INTEGER REFERENCES poke_stage.versions(id),
-    local_language_id INTEGER REFERENCES poke_stage.languages(id),
-    name TEXT
+    version_id        INTEGER REFERENCES poke_stage.versions (id),
+    local_language_id INTEGER REFERENCES poke_stage.languages (id),
+    name              TEXT
 );

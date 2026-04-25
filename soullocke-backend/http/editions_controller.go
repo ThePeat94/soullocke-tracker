@@ -17,10 +17,9 @@ type GameEditionsController struct {
 }
 
 type GameEditionDto struct {
-	ID           uint16                    `json:"id" example:"1" doc:"Game Edition ID"`
-	Generation   uint64                    `json:"generation" example:"3" doc:"Game Edition Generation"`
-	FallbackName string                    `json:"fallbackName" example:"firered" doc:"Fallback Name (Code Name) for the Game Edition"`
-	Names        []*language.LocalizedName `json:"names" doc:"Game Edition Names"`
+	ID         uint16                    `json:"id" example:"1" doc:"Game Edition ID"`
+	Generation uint64                    `json:"generation" example:"3" doc:"Game Edition Generation"`
+	Names      []*language.LocalizedName `json:"names" doc:"Game Edition Names"`
 }
 
 type GetGameEditionsOutput struct {
@@ -63,10 +62,9 @@ func (controller *GameEditionsController) RegisterRoutes(s *Server) {
 				genNames = []*language.LocalizedName{}
 			}
 			outputEditions = append(outputEditions, GameEditionDto{
-				ID:           gameEdition.ID,
-				Generation:   gameEdition.Generation,
-				FallbackName: gameEdition.Name,
-				Names:        genNames,
+				ID:         gameEdition.ID,
+				Generation: gameEdition.Generation,
+				Names:      genNames,
 			})
 		}
 		output.Body = outputEditions

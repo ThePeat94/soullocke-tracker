@@ -10,7 +10,7 @@ import (
 )
 
 const getGameEditions = `-- name: GetGameEditions :many
-SELECT id, code_name, generation, fallback_name FROM game_editions
+SELECT id, code_name, generation FROM game_editions
 `
 
 func (q *Queries) GetGameEditions(ctx context.Context) ([]GameEdition, error) {
@@ -22,12 +22,7 @@ func (q *Queries) GetGameEditions(ctx context.Context) ([]GameEdition, error) {
 	var items []GameEdition
 	for rows.Next() {
 		var i GameEdition
-		if err := rows.Scan(
-			&i.ID,
-			&i.CodeName,
-			&i.Generation,
-			&i.FallbackName,
-		); err != nil {
+		if err := rows.Scan(&i.ID, &i.CodeName, &i.Generation); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
