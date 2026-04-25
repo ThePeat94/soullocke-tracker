@@ -52,10 +52,6 @@ export type ErrorModel = {
 
 export type GameEditionDto = {
     /**
-     * Fallback Name (Code Name) for the Game Edition
-     */
-    fallbackName: string;
-    /**
      * Game Edition Generation
      */
     generation: number;
