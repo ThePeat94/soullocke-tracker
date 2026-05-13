@@ -72,7 +72,7 @@ func (lc *LobbyController) RegisterLobbyRoutes(s *Server) {
 			slog.Error("error creating lobby", "error", err)
 			return resp, huma.Error500InternalServerError("creating lobby: Internal Server Error", err)
 		}
-		resp.Body = LobbyCreationResponse{l.ID}
+		resp.Body = LobbyCreationResponse{l.ID.String()}
 		return resp, nil
 	})
 
@@ -96,7 +96,7 @@ func (lc *LobbyController) RegisterLobbyRoutes(s *Server) {
 		}
 
 		response := GetLobbyResponse{
-			ID:            l.ID,
+			ID:            l.ID.String(),
 			Name:          l.Name,
 			GameEditionId: l.GameEditionID,
 		}
