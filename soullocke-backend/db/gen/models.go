@@ -37,3 +37,11 @@ type Lobby struct {
 	UpdatedAt     pgtype.Timestamptz
 	DeletedAt     pgtype.Timestamptz
 }
+
+type TokenAuth struct {
+	ID        uuid.UUID
+	TokenHash []byte
+	LobbyID   uuid.UUID
+	CreatedAt pgtype.Timestamptz
+	ExpiresAt pgtype.Timestamptz
+}
