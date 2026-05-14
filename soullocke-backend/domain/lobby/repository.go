@@ -71,6 +71,7 @@ func toDomainLobby(l dbgen.GetLobbyRow) *Lobby {
 		ID:            l.ID,
 		Name:          l.Name,
 		GameEditionID: uint16(l.GameEditionID),
+		Password:      l.Password,
 	}
 }
 

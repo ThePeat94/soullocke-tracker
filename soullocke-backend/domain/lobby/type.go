@@ -10,6 +10,7 @@ type Lobby struct {
 	ID            uuid.UUID
 	Name          string
 	GameEditionID uint16
+	Password      string
 }
 
 type LobbyWithCredentials struct {
