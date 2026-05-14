@@ -10,6 +10,7 @@ import (
 	"soullocke-backend/domain/game_edition"
 	"soullocke-backend/domain/language"
 	"soullocke-backend/domain/lobby"
+	"soullocke-backend/domain/token"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -24,9 +25,10 @@ type Server struct {
 	api                   huma.API
 	lobbyController       *LobbyController
 	gameEditionController *GameEditionsController
+	loginController       *AuthController
 }
 
-func NewServer(port uint16, allowedOrigins []string, lr lobby.LobbyRepository, ger game_edition.GameEditionRepository, supportedLanguages []language.Language, langR language.LanguageRepository) *Server {
+func NewServer(port uint16, allowedOrigins []string, lr lobby.LobbyRepository, ger game_edition.GameEditionRepository, tr token.TokenRepository, supportedLanguages []language.Language, langR language.LanguageRepository) *Server {
 	mux := http.NewServeMux()
 	api := humago.New(mux, huma.DefaultConfig("SoulLocker API", "0.0.1"))
 	return &Server{
@@ -36,12 +38,14 @@ func NewServer(port uint16, allowedOrigins []string, lr lobby.LobbyRepository, g
 		allowedOrigins:        allowedOrigins,
 		lobbyController:       NewLobbyController(lr),
 		gameEditionController: NewGameEditionsController(ger, supportedLanguages, langR),
+		loginController:       NewAuthController(tr, lr),
 	}
 }
 
 func (s *Server) Setup() {
 	s.lobbyController.RegisterLobbyRoutes(s)
 	s.gameEditionController.RegisterRoutes(s)
+	s.loginController.RegisterAuthRoutes(s)
 }
 
 func (s *Server) Serve(ctx context.Context) error {
