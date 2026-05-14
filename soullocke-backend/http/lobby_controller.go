@@ -45,7 +45,7 @@ type GetLobbyOutput struct {
 }
 
 type GetLobbyInput struct {
-	ID string `path:"id" example:"73beb67c-70c5-4c95-b99e-73e3c076f82f" doc:"Lobby ID as a UUID" format:"uuid"`
+	ID string `path:"lobbyId" example:"73beb67c-70c5-4c95-b99e-73e3c076f82f" doc:"Lobby ID as a UUID" format:"uuid"`
 }
 
 func NewLobbyController(lr lobby.LobbyRepository) *LobbyController {
@@ -79,7 +79,7 @@ func (lc *LobbyController) RegisterLobbyRoutes(s *Server) {
 	huma.Register(s.api, huma.Operation{
 		OperationID:   "get-lobby",
 		Method:        http.MethodGet,
-		Path:          "/lobby/{id}",
+		Path:          "/lobby/{lobbyId}",
 		Summary:       "Retrieve a lobby",
 		Description:   "Retrieve a lobby in which players manage their soullink run",
 		Tags:          []string{"Lobby"},
