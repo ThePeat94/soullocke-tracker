@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 	"soullocke-backend/domain/token"
+	"time"
 
 	"github.com/danielgtaylor/huma/v2"
 )
@@ -36,6 +37,11 @@ func RequireLobbyTokenAuthentication(api huma.API, tr token.TokenRepository) fun
 		}
 
 		if foundToken.LobbyId != lobbyID {
+			_ = huma.WriteErr(api, ctx, http.StatusUnauthorized, "unauthorized")
+			return
+		}
+
+		if foundToken.ExpiresAt.After(time.Now()) {
 			_ = huma.WriteErr(api, ctx, http.StatusUnauthorized, "unauthorized")
 			return
 		}

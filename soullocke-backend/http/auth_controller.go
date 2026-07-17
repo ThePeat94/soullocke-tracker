@@ -42,6 +42,24 @@ type AuthResponse struct {
 	ExpiresAt time.Time `json:"expiresAt" example:"2022-01-01T00:00:00+00:00"`
 }
 
+type AccessInput struct {
+	AccessToken string `cookie:"soullocker_lobby_access"`
+
+	LobbyID string `path:"lobbyId" example:"73beb67c-70c5-4c95-b99e-73e3c076f82f" doc:"Lobby ID as a UUID" format:"uuid"`
+}
+
+type AccessRequest struct {
+	LobbyID string `json:"lobbyId" example:"73beb67c-70c5-4c95-b99e-73e3c076f82f" doc:"Lobby ID as a UUID"`
+}
+
+type AccessOutput struct {
+	Body AccessResponse
+}
+
+type AccessResponse struct {
+	CanWrite bool `json:"canWrite" example:"true" doc:"Whether or not the user can modify the lobby"`
+}
+
 func NewAuthController(tr token.TokenRepository, lr lobby.LobbyRepository) *AuthController {
 	return &AuthController{
 		tr: tr,
@@ -58,7 +76,21 @@ func (lc *AuthController) RegisterAuthRoutes(s *Server) {
 		Description:   "Login to a lobby with the password",
 		Tags:          []string{"Login"},
 		DefaultStatus: http.StatusOK,
-	}, func(ctx context.Context, i *AuthInput) (*AuthOutput, error) {
+	}, lc.handleLogin())
+
+	huma.Register(s.api, huma.Operation{
+		OperationID:   "check-access",
+		Method:        http.MethodGet,
+		Path:          "/access/{lobbyId}",
+		Summary:       "Cookie access check",
+		Description:   "Check if the access cookie is valid for a given lobby",
+		Tags:          []string{"Login"},
+		DefaultStatus: http.StatusOK,
+	}, lc.handleAccessCheck())
+}
+
+func (lc *AuthController) handleLogin() func(ctx context.Context, i *AuthInput) (*AuthOutput, error) {
+	return func(ctx context.Context, i *AuthInput) (*AuthOutput, error) {
 		foundLobby, err := lc.lr.GetLobby(ctx, i.Body.LobbyID)
 		if err != nil {
 			if errors.Is(err, lobby.ErrNotFound) {
@@ -107,7 +139,38 @@ func (lc *AuthController) RegisterAuthRoutes(s *Server) {
 		}
 
 		return out, nil
-	})
+	}
+}
+
+func (lc *AuthController) handleAccessCheck() func(ctx context.Context, i *AccessInput) (*AccessOutput, error) {
+	return func(ctx context.Context, i *AccessInput) (*AccessOutput, error) {
+		_, err := lc.lr.GetLobby(ctx, i.LobbyID)
+		if err != nil {
+			if errors.Is(err, lobby.ErrNotFound) {
+				return nil, huma.Error404NotFound("lobby not found")
+			}
+			slog.Error("error loading lobby", "error", err)
+			return nil, huma.Error500InternalServerError("failed to load lobby")
+		}
+
+		tokenHash := hashAccessToken(i.AccessToken)
+		foundToken, err := lc.tr.GetTokenByHash(ctx, tokenHash)
+		if err != nil {
+			return &AccessOutput{Body: AccessResponse{CanWrite: false}}, huma.Error401Unauthorized("unauthorized")
+		}
+
+		if foundToken.LobbyId != i.LobbyID {
+			return &AccessOutput{Body: AccessResponse{CanWrite: false}}, huma.Error401Unauthorized("unauthorized")
+		}
+
+		out := &AccessOutput{
+			Body: AccessResponse{
+				CanWrite: true,
+			},
+		}
+
+		return out, nil
+	}
 }
 
 func generateAccessToken() (string, error) {
