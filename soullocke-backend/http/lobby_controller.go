@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"soullocke-backend/domain/lobby"
+	"soullocke-backend/domain/token"
 	"strings"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -14,6 +15,7 @@ import (
 
 type LobbyController struct {
 	lr lobby.LobbyRepository
+	tr token.TokenRepository
 }
 
 type LobbyCreationRequest struct {
@@ -48,9 +50,10 @@ type GetLobbyInput struct {
 	ID string `path:"lobbyId" example:"73beb67c-70c5-4c95-b99e-73e3c076f82f" doc:"Lobby ID as a UUID" format:"uuid"`
 }
 
-func NewLobbyController(lr lobby.LobbyRepository) *LobbyController {
+func NewLobbyController(lr lobby.LobbyRepository, tr token.TokenRepository) *LobbyController {
 	return &LobbyController{
 		lr: lr,
+		tr: tr,
 	}
 }
 

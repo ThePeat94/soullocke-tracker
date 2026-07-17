@@ -36,7 +36,7 @@ func NewServer(port uint16, allowedOrigins []string, lr lobby.LobbyRepository, g
 		mux:                   mux,
 		api:                   api,
 		allowedOrigins:        allowedOrigins,
-		lobbyController:       NewLobbyController(lr),
+		lobbyController:       NewLobbyController(lr, tr),
 		gameEditionController: NewGameEditionsController(ger, supportedLanguages, langR),
 		loginController:       NewAuthController(tr, lr),
 	}
