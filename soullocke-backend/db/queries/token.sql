@@ -9,3 +9,6 @@ RETURNING id, token_hash, lobby_id, created_at, expires_at;
 
 -- name: DeleteTokenByHash :exec
 DELETE FROM token_auth WHERE token_hash = sqlc.arg(hash);
+
+-- name: DeleteExpiredTokens :execrows
+DELETE FROM token_auth WHERE expires_at < NOW();

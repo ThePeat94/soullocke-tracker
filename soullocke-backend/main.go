@@ -14,6 +14,7 @@ import (
 	"soullocke-backend/http"
 	"strings"
 	"syscall"
+	"time"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -98,6 +99,7 @@ func main() {
 	grp.Go(func() error {
 		return server.Serve(gCtx)
 	})
+	grp.Go(func() error { token.LoopCleanup(gCtx, *tr, time.Minute); return nil })
 
 	err = grp.Wait()
 	if err != nil {

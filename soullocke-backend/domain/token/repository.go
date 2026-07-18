@@ -72,6 +72,18 @@ func (r *Repository) DeleteTokenByHash(ctx context.Context, hash []byte) error {
 	return nil
 }
 
+func (r *Repository) DeleteExpiredTokens(ctx context.Context) (int64, error) {
+	q := r.QueriesFromContext(ctx)
+	count, err := q.DeleteExpiredTokens(ctx)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, nil
+		}
+		return 0, fmt.Errorf("token: failed to delete expired tokens: %w", err)
+	}
+	return count, nil
+}
+
 func toDomainToken(token dbgen.TokenAuth) *Token {
 	return &Token{
 		ID:        token.ID.String(),

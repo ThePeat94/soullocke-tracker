@@ -37,6 +37,18 @@ func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) (Token
 	return i, err
 }
 
+const deleteExpiredTokens = `-- name: DeleteExpiredTokens :execrows
+DELETE FROM token_auth WHERE expires_at < NOW()
+`
+
+func (q *Queries) DeleteExpiredTokens(ctx context.Context) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteExpiredTokens)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const deleteTokenByHash = `-- name: DeleteTokenByHash :exec
 DELETE FROM token_auth WHERE token_hash = $1
 `
