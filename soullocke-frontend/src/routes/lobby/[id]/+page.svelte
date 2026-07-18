@@ -40,6 +40,10 @@
 		<div class="dark:bg-gray-800 rounded-2xl p-2">
 			<h1 class="text-4xl text-center">{lobbyQuery.data.name}</h1>
 		</div>
+		{#if !(accessCheck.isSuccess && loginMutation.isSuccess)}
+			<TextInput bind:value={password} label="Password" type="password"/>
+			<PrimaryButton onClick={handleUnlockLobbyClick} variant="filled">Join Lobby</PrimaryButton>
+		{/if}
 		<p>Game Edition: {lobbyQuery.data.gameEditionId}</p>
 		<p>WIP!</p>
 
@@ -50,12 +54,5 @@
 			<li>- Add utility tools (optional)</li>
 			<li>- Some nice UI/UX</li>
 		</ul>
-
-		{#if accessCheck.isSuccess && loginMutation.isSuccess}
-			unlocked!
-		{:else}
-			<TextInput bind:value={password} label="Password" type="password"/>
-			<PrimaryButton onClick={handleUnlockLobbyClick} variant="filled">Join Lobby</PrimaryButton>
-		{/if}
 	</div>
 {/if}
