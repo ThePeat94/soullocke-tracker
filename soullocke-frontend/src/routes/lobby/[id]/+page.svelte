@@ -1,27 +1,20 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
 	import { getLobbyQuery } from '$api/lobby';
-	import TextInput from '$components/textinput/TextInput.svelte';
 	import PrimaryButton from '$components/buttons/PrimaryButton.svelte';
-	import { getAccessQuery, getAuthMutation } from '$api/auth';
+	import { getAccessQuery } from '$api/auth';
+	import UnlockLobbyDialog from '$components/dialogs/UnlockLobbyDialog.svelte';
 
 	let { params }: PageProps = $props();
-	let password = $state('');
+	let unlockDialog = $state<ReturnType<typeof UnlockLobbyDialog>>();
 
 	const lobbyQuery = getLobbyQuery(() => params.id);
-	const loginMutation = getAuthMutation();
 	const accessCheck = getAccessQuery(() => params.id);
 
 	const handleUnlockLobbyClick = (): void => {
-		loginMutation.mutate({
-			body: {
-				lobbyId: params.id,
-				password,
-			},
-		})
+		unlockDialog?.openDialog();
 	};
 </script>
-
 
 {#if lobbyQuery.isLoading}
 	Loading...
@@ -40,8 +33,7 @@
 		<div class="dark:bg-gray-800 rounded-2xl p-2">
 			<h1 class="text-4xl text-center">{lobbyQuery.data.name}</h1>
 		</div>
-		{#if !(accessCheck.isSuccess && loginMutation.isSuccess)}
-			<TextInput bind:value={password} label="Password" type="password"/>
+		{#if !(accessCheck.isSuccess)}
 			<PrimaryButton onClick={handleUnlockLobbyClick} variant="filled">Join Lobby</PrimaryButton>
 		{/if}
 		<p>Game Edition: {lobbyQuery.data.gameEditionId}</p>
@@ -56,3 +48,9 @@
 		</ul>
 	</div>
 {/if}
+
+<svelte:head>
+	<title>Lobby | {lobbyQuery.data?.name}</title>
+</svelte:head>
+
+<UnlockLobbyDialog bind:this={unlockDialog} lobbyId={params.id} />

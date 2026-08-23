@@ -8,9 +8,11 @@ export const getAuthMutation = () => {
 		return {
 			...loginMutation(),
 			onSuccess: async (data, variables) => {
-				await queryClient.invalidateQueries({
-					queryKey: checkAccessQueryKey({path: {lobbyId: variables.body.lobbyId}})
-				})
+				void queryClient.invalidateQueries({
+					queryKey: checkAccessQueryKey({ path: { lobbyId: variables.body.lobbyId } })
+				});
+				queryClient.setQueryData(checkAccessQueryKey({ path: { lobbyId: variables.body.lobbyId } }),
+					{ canWrite: true });
 			}
 		};
 	})
@@ -23,6 +25,7 @@ export const getAccessQuery = (getId: () => string) => {
 			...checkAccessOptions({ path: { lobbyId: id }}),
 			enabled: id.length > 0,
 			refetchInterval: 5000,
+			retry: false,
 		};
 	})
 };
