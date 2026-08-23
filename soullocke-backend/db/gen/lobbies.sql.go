@@ -38,19 +38,25 @@ func (q *Queries) CreateLobby(ctx context.Context, arg CreateLobbyParams) (Creat
 }
 
 const getLobby = `-- name: GetLobby :one
-SELECT id, name, game_edition_id FROM lobbies WHERE id = $1
+SELECT id, name, game_edition_id, password FROM lobbies WHERE id = $1
 `
 
 type GetLobbyRow struct {
 	ID            uuid.UUID
 	Name          string
 	GameEditionID int32
+	Password      string
 }
 
 // @type LobbyRow
 func (q *Queries) GetLobby(ctx context.Context, id uuid.UUID) (GetLobbyRow, error) {
 	row := q.db.QueryRow(ctx, getLobby, id)
 	var i GetLobbyRow
-	err := row.Scan(&i.ID, &i.Name, &i.GameEditionID)
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.GameEditionID,
+		&i.Password,
+	)
 	return i, err
 }

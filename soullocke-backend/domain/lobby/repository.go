@@ -68,15 +68,16 @@ func (r *Repository) CreateLobby(ctx context.Context, name string, password stri
 
 func toDomainLobby(l dbgen.GetLobbyRow) *Lobby {
 	return &Lobby{
-		ID:            l.ID.String(),
+		ID:            l.ID,
 		Name:          l.Name,
 		GameEditionID: uint16(l.GameEditionID),
+		Password:      l.Password,
 	}
 }
 
 func toDomainLobbyFromCreation(l dbgen.CreateLobbyRow) *Lobby {
 	return &Lobby{
-		ID:            l.ID.String(),
+		ID:            l.ID,
 		Name:          l.Name,
 		GameEditionID: uint16(l.GameEditionID),
 	}

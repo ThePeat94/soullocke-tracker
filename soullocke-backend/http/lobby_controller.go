@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"soullocke-backend/domain/lobby"
+	"soullocke-backend/domain/token"
 	"strings"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -14,6 +15,7 @@ import (
 
 type LobbyController struct {
 	lr lobby.LobbyRepository
+	tr token.TokenRepository
 }
 
 type LobbyCreationRequest struct {
@@ -45,12 +47,13 @@ type GetLobbyOutput struct {
 }
 
 type GetLobbyInput struct {
-	ID string `path:"id" example:"73beb67c-70c5-4c95-b99e-73e3c076f82f" doc:"Lobby ID as a UUID" format:"uuid"`
+	ID string `path:"lobbyId" example:"73beb67c-70c5-4c95-b99e-73e3c076f82f" doc:"Lobby ID as a UUID" format:"uuid"`
 }
 
-func NewLobbyController(lr lobby.LobbyRepository) *LobbyController {
+func NewLobbyController(lr lobby.LobbyRepository, tr token.TokenRepository) *LobbyController {
 	return &LobbyController{
 		lr: lr,
+		tr: tr,
 	}
 }
 
@@ -72,14 +75,14 @@ func (lc *LobbyController) RegisterLobbyRoutes(s *Server) {
 			slog.Error("error creating lobby", "error", err)
 			return resp, huma.Error500InternalServerError("creating lobby: Internal Server Error", err)
 		}
-		resp.Body = LobbyCreationResponse{l.ID}
+		resp.Body = LobbyCreationResponse{l.ID.String()}
 		return resp, nil
 	})
 
 	huma.Register(s.api, huma.Operation{
 		OperationID:   "get-lobby",
 		Method:        http.MethodGet,
-		Path:          "/lobby/{id}",
+		Path:          "/lobby/{lobbyId}",
 		Summary:       "Retrieve a lobby",
 		Description:   "Retrieve a lobby in which players manage their soullink run",
 		Tags:          []string{"Lobby"},
@@ -96,7 +99,7 @@ func (lc *LobbyController) RegisterLobbyRoutes(s *Server) {
 		}
 
 		response := GetLobbyResponse{
-			ID:            l.ID,
+			ID:            l.ID.String(),
 			Name:          l.Name,
 			GameEditionId: l.GameEditionID,
 		}

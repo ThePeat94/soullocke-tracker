@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateLobbyData, CreateLobbyErrors, CreateLobbyResponses, GetEditionsData, GetEditionsErrors, GetEditionsResponses, GetLobbyData, GetLobbyErrors, GetLobbyResponses } from './types.gen';
+import type { CheckAccessData, CheckAccessErrors, CheckAccessResponses, CreateLobbyData, CreateLobbyErrors, CreateLobbyResponses, GetEditionsData, GetEditionsErrors, GetEditionsResponses, GetLobbyData, GetLobbyErrors, GetLobbyResponses, LoginData, LoginErrors, LoginResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -17,6 +17,13 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
      */
     meta?: Record<string, unknown>;
 };
+
+/**
+ * Cookie access check
+ *
+ * Check if the access cookie is valid for a given lobby
+ */
+export const checkAccess = <ThrowOnError extends boolean = false>(options: Options<CheckAccessData, ThrowOnError>) => (options.client ?? client).get<CheckAccessResponses, CheckAccessErrors, ThrowOnError>({ url: '/access/{lobbyId}', ...options });
 
 /**
  * Retrieve all available Pokémon editions
@@ -44,4 +51,18 @@ export const createLobby = <ThrowOnError extends boolean = false>(options: Optio
  *
  * Retrieve a lobby in which players manage their soullink run
  */
-export const getLobby = <ThrowOnError extends boolean = false>(options: Options<GetLobbyData, ThrowOnError>) => (options.client ?? client).get<GetLobbyResponses, GetLobbyErrors, ThrowOnError>({ url: '/lobby/{id}', ...options });
+export const getLobby = <ThrowOnError extends boolean = false>(options: Options<GetLobbyData, ThrowOnError>) => (options.client ?? client).get<GetLobbyResponses, GetLobbyErrors, ThrowOnError>({ url: '/lobby/{lobbyId}', ...options });
+
+/**
+ * Login to a lobby
+ *
+ * Login to a lobby with the password
+ */
+export const login = <ThrowOnError extends boolean = false>(options: Options<LoginData, ThrowOnError>) => (options.client ?? client).post<LoginResponses, LoginErrors, ThrowOnError>({
+    url: '/login',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});

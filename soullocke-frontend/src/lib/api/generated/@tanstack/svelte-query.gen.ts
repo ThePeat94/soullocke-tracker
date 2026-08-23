@@ -3,8 +3,8 @@
 import { type MutationOptions, queryOptions } from '@tanstack/svelte-query';
 
 import { client } from '../client.gen';
-import { createLobby, getEditions, getLobby, type Options } from '../sdk.gen';
-import type { CreateLobbyData, CreateLobbyError, CreateLobbyResponse, GetEditionsData, GetEditionsError, GetEditionsResponse, GetLobbyData, GetLobbyError, GetLobbyResponse2 } from '../types.gen';
+import { checkAccess, createLobby, getEditions, getLobby, login, type Options } from '../sdk.gen';
+import type { CheckAccessData, CheckAccessError, CheckAccessResponse, CreateLobbyData, CreateLobbyError, CreateLobbyResponse, GetEditionsData, GetEditionsError, GetEditionsResponse, GetLobbyData, GetLobbyError, GetLobbyResponse2, LoginData, LoginError, LoginResponse } from '../types.gen';
 
 export type QueryKey<TOptions extends Options> = [
     Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
@@ -38,6 +38,26 @@ const createQueryKey = <TOptions extends Options>(id: string, options?: TOptions
     }
     return [params];
 };
+
+export const checkAccessQueryKey = (options: Options<CheckAccessData>) => createQueryKey('checkAccess', options);
+
+/**
+ * Cookie access check
+ *
+ * Check if the access cookie is valid for a given lobby
+ */
+export const checkAccessOptions = (options: Options<CheckAccessData>) => queryOptions<CheckAccessResponse, CheckAccessError, CheckAccessResponse, ReturnType<typeof checkAccessQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => {
+        const { data } = await checkAccess({
+            ...options,
+            ...queryKey[0],
+            signal,
+            throwOnError: true
+        });
+        return data;
+    },
+    queryKey: checkAccessQueryKey(options)
+});
 
 export const getEditionsQueryKey = (options?: Options<GetEditionsData>) => createQueryKey('getEditions', options);
 
@@ -97,3 +117,22 @@ export const getLobbyOptions = (options: Options<GetLobbyData>) => queryOptions<
     },
     queryKey: getLobbyQueryKey(options)
 });
+
+/**
+ * Login to a lobby
+ *
+ * Login to a lobby with the password
+ */
+export const loginMutation = (options?: Partial<Options<LoginData>>): MutationOptions<LoginResponse, LoginError, Options<LoginData>> => {
+    const mutationOptions: MutationOptions<LoginResponse, LoginError, Options<LoginData>> = {
+        mutationFn: async (fnOptions) => {
+            const { data } = await login({
+                ...options,
+                ...fnOptions,
+                throwOnError: true
+            });
+            return data;
+        }
+    };
+    return mutationOptions;
+};

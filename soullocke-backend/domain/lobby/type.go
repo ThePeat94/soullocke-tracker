@@ -1,11 +1,16 @@
 package lobby
 
-import "context"
+import (
+	"context"
+
+	"github.com/google/uuid"
+)
 
 type Lobby struct {
-	ID            string
+	ID            uuid.UUID
 	Name          string
 	GameEditionID uint16
+	Password      string
 }
 
 type LobbyWithCredentials struct {

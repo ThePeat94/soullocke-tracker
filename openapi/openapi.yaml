@@ -3,6 +3,41 @@ info:
     title: SoulLocker API
     version: 0.0.1
 paths:
+    /access/{lobbyId}:
+        get:
+            tags:
+                - Login
+            summary: Cookie access check
+            description: Check if the access cookie is valid for a given lobby
+            operationId: check-access
+            parameters:
+                - name: soullocker_lobby_access
+                  in: cookie
+                  schema:
+                    type: string
+                - name: lobbyId
+                  in: path
+                  description: Lobby ID as a UUID
+                  required: true
+                  schema:
+                    type: string
+                    description: Lobby ID as a UUID
+                    format: uuid
+                    examples:
+                        - 73beb67c-70c5-4c95-b99e-73e3c076f82f
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AccessResponse'
+                default:
+                    description: Error
+                    content:
+                        application/problem+json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorModel'
     /editions:
         get:
             tags:
@@ -51,7 +86,7 @@ paths:
                         application/problem+json:
                             schema:
                                 $ref: '#/components/schemas/ErrorModel'
-    /lobby/{id}:
+    /lobby/{lobbyId}:
         get:
             tags:
                 - Lobby
@@ -59,7 +94,7 @@ paths:
             description: Retrieve a lobby in which players manage their soullink run
             operationId: get-lobby
             parameters:
-                - name: id
+                - name: lobbyId
                   in: path
                   description: Lobby ID as a UUID
                   required: true
@@ -82,8 +117,98 @@ paths:
                         application/problem+json:
                             schema:
                                 $ref: '#/components/schemas/ErrorModel'
+    /login:
+        post:
+            tags:
+                - Login
+            summary: Login to a lobby
+            description: Login to a lobby with the password
+            operationId: login
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AuthRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    headers:
+                        Set-Cookie:
+                            schema:
+                                type: string
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AuthResponse'
+                default:
+                    description: Error
+                    content:
+                        application/problem+json:
+                            schema:
+                                $ref: '#/components/schemas/ErrorModel'
 components:
     schemas:
+        AccessResponse:
+            type: object
+            additionalProperties: false
+            properties:
+                $schema:
+                    type: string
+                    description: A URL to the JSON Schema for this object.
+                    format: uri
+                    examples:
+                        - https://example.com/schemas/AccessResponse.json
+                    readOnly: true
+                canWrite:
+                    type: boolean
+                    description: Whether or not the user can modify the lobby
+                    examples:
+                        - true
+            required:
+                - canWrite
+        AuthRequest:
+            type: object
+            additionalProperties: false
+            properties:
+                $schema:
+                    type: string
+                    description: A URL to the JSON Schema for this object.
+                    format: uri
+                    examples:
+                        - https://example.com/schemas/AuthRequest.json
+                    readOnly: true
+                lobbyId:
+                    type: string
+                    description: Lobby ID as a UUID
+                    examples:
+                        - 73beb67c-70c5-4c95-b99e-73e3c076f82f
+                password:
+                    type: string
+                    description: The password of the lobby to login to
+                    examples:
+                        - "123456"
+            required:
+                - password
+                - lobbyId
+        AuthResponse:
+            type: object
+            additionalProperties: false
+            properties:
+                $schema:
+                    type: string
+                    description: A URL to the JSON Schema for this object.
+                    format: uri
+                    examples:
+                        - https://example.com/schemas/AuthResponse.json
+                    readOnly: true
+                expiresAt:
+                    type: string
+                    format: date-time
+                    examples:
+                        - "2022-01-01T00:00:00+00:00"
+            required:
+                - expiresAt
         ErrorDetail:
             type: object
             additionalProperties: false

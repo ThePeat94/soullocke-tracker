@@ -4,6 +4,40 @@ export type ClientOptions = {
     baseUrl: `${string}://${string}` | (string & {});
 };
 
+export type AccessResponse = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    /**
+     * Whether or not the user can modify the lobby
+     */
+    canWrite: boolean;
+};
+
+export type AuthRequest = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    /**
+     * Lobby ID as a UUID
+     */
+    lobbyId: string;
+    /**
+     * The password of the lobby to login to
+     */
+    password: string;
+};
+
+export type AuthResponse = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    expiresAt: string;
+};
+
 export type ErrorDetail = {
     /**
      * Where the error occurred, e.g. 'body.items[3].tags' or 'path.thing-id'
@@ -104,6 +138,28 @@ export type LocalizedName = {
     name: string;
 };
 
+export type AccessResponseWritable = {
+    /**
+     * Whether or not the user can modify the lobby
+     */
+    canWrite: boolean;
+};
+
+export type AuthRequestWritable = {
+    /**
+     * Lobby ID as a UUID
+     */
+    lobbyId: string;
+    /**
+     * The password of the lobby to login to
+     */
+    password: string;
+};
+
+export type AuthResponseWritable = {
+    expiresAt: string;
+};
+
 export type ErrorModelWritable = {
     /**
      * A human-readable explanation specific to this occurrence of the problem.
@@ -152,6 +208,36 @@ export type LobbyCreationResponseWritable = {
      */
     lobbyId: string;
 };
+
+export type CheckAccessData = {
+    body?: never;
+    path: {
+        /**
+         * Lobby ID as a UUID
+         */
+        lobbyId: string;
+    };
+    query?: never;
+    url: '/access/{lobbyId}';
+};
+
+export type CheckAccessErrors = {
+    /**
+     * Error
+     */
+    default: ErrorModel;
+};
+
+export type CheckAccessError = CheckAccessErrors[keyof CheckAccessErrors];
+
+export type CheckAccessResponses = {
+    /**
+     * OK
+     */
+    200: AccessResponse;
+};
+
+export type CheckAccessResponse = CheckAccessResponses[keyof CheckAccessResponses];
 
 export type GetEditionsData = {
     body?: never;
@@ -209,10 +295,10 @@ export type GetLobbyData = {
         /**
          * Lobby ID as a UUID
          */
-        id: string;
+        lobbyId: string;
     };
     query?: never;
-    url: '/lobby/{id}';
+    url: '/lobby/{lobbyId}';
 };
 
 export type GetLobbyErrors = {
@@ -232,3 +318,28 @@ export type GetLobbyResponses = {
 };
 
 export type GetLobbyResponse2 = GetLobbyResponses[keyof GetLobbyResponses];
+
+export type LoginData = {
+    body: AuthRequestWritable;
+    path?: never;
+    query?: never;
+    url: '/login';
+};
+
+export type LoginErrors = {
+    /**
+     * Error
+     */
+    default: ErrorModel;
+};
+
+export type LoginError = LoginErrors[keyof LoginErrors];
+
+export type LoginResponses = {
+    /**
+     * OK
+     */
+    200: AuthResponse;
+};
+
+export type LoginResponse = LoginResponses[keyof LoginResponses];
